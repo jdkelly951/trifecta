@@ -543,6 +543,13 @@ function promptForRefresh(worker) {
     () => {
       refreshPending = true;
       worker?.postMessage?.({ type: 'SKIP_WAITING' });
+      if (worker) {
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'activated') {
+            window.location.reload();
+          }
+        });
+      }
     },
     { once: true }
   );
