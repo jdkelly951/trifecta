@@ -45,6 +45,8 @@ const state = {
 };
 
 let activeView = 'dashboard';
+let updatePromptShown = false;
+let refreshPending = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
@@ -59,11 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(console.error);
-    });
-  }
+  if (!('serviceWorker' in navigator)) return;
+
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('sw.js');
+      setupServiceWorkerUpdates(registration);
+    } catch (err) {
+      console.error('Service worker registration failed', err);
+    }
+  });
 }
 
 function initNavigation() {
@@ -495,4 +502,48 @@ function setTrackChip(section, trackKey, detail) {
   const label = TRACKS[trackKey].title;
   chip.textContent = detail ? `${label} • ${detail}` : label;
   chip.classList.add('active');
+}
+
+function setupServiceWorkerUpdates(registration) {
+  if (!registration) return;
+
+  if (registration.waiting) {
+    promptForRefresh(registration.waiting);
+  }
+
+  registration.addEventListener('updatefound', () => {
+    const newWorker = registration.installing;
+    if (!newWorker) return;
+    newWorker.addEventListener('statechange', () => {
+      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+        promptForRefresh(newWorker);
+      }
+    });
+  });
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshPending) {
+      window.location.reload();
+    }
+  });
+}
+
+function promptForRefresh(worker) {
+  if (updatePromptShown) return;
+  updatePromptShown = true;
+
+  const banner = document.getElementById('updateBanner');
+  const button = document.getElementById('refreshApp');
+  if (!banner || !button) return;
+
+  banner.hidden = false;
+  button.focus();
+  button.addEventListener(
+    'click',
+    () => {
+      refreshPending = true;
+      worker?.postMessage?.({ type: 'SKIP_WAITING' });
+    },
+    { once: true }
+  );
 }

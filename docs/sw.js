@@ -1,4 +1,5 @@
-const CACHE_NAME = 'cert-study-suite-v1';
+const CACHE_VERSION = 'v2025-11-13a';
+const CACHE_NAME = `cert-study-suite-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -26,10 +27,25 @@ self.addEventListener('activate', (event) => {
       Promise.all(
         keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       )
-    ).then(() => self.clients.claim())
+    )
+      .then(() => self.clients.claim())
+      .then(notifyClients)
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+function notifyClients() {
+  return self.clients
+    .matchAll({ type: 'window', includeUncontrolled: true })
+    .then((clients) => {
+      clients.forEach((client) => client.postMessage({ type: 'SW_ACTIVATED', version: CACHE_VERSION }));
+    });
+}
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
