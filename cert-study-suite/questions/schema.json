@@ -1,0 +1,39 @@
+{
+  "$id": "https://example.com/cert-study-suite-question.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cert Study Suite Question",
+  "type": "object",
+  "required": ["question", "choices", "answer", "explanation"],
+  "properties": {
+    "question": {
+      "type": "string",
+      "minLength": 8,
+      "description": "The prompt presented to the learner."
+    },
+    "choices": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "items": {
+        "type": "string"
+      },
+      "description": "List of multiple-choice answers rendered in order."
+    },
+    "answer": {
+      "type": "string",
+      "description": "Must match one of the provided choices exactly."
+    },
+    "explanation": {
+      "type": "string",
+      "description": "Rationale shown after revealing the card or answering a quiz question."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional taxonomy fields such as domain or objective id."
+    }
+  },
+  "additionalProperties": false
+}

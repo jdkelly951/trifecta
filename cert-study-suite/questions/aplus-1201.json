@@ -1,0 +1,20 @@
+[
+  {
+    "question": "Which wireless standard first introduced MU-MIMO for consumer devices?",
+    "choices": ["802.11n", "802.11ac", "802.11g", "802.11ax"],
+    "answer": "802.11ac",
+    "explanation": "Wave 2 802.11ac access points added multi-user MIMO so multiple clients can talk at the same time."
+  },
+  {
+    "question": "A user notes their laptop screen is unreadable outdoors. Which hardware upgrade helps most?",
+    "choices": ["Install more RAM", "Replace the CMOS battery", "Swap to an IPS panel with higher nits", "Enable virtualization in BIOS"],
+    "answer": "Swap to an IPS panel with higher nits",
+    "explanation": "High-brightness IPS displays improve color accuracy and outdoor visibility."
+  },
+  {
+    "question": "Which cloud model delivers full applications over the internet without local installs?",
+    "choices": ["IaaS", "Notebooks", "PaaS", "SaaS"],
+    "answer": "SaaS",
+    "explanation": "Software as a Service hosts complete applications so users only need a browser."
+  }
+]

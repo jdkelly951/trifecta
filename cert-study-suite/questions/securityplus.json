@@ -1,0 +1,20 @@
+[
+  {
+    "question": "Which control blocks malicious macros by only allowing signed code execution?",
+    "choices": ["DAC", "Mandatory Access Control", "Application whitelisting", "NAC"],
+    "answer": "Application whitelisting",
+    "explanation": "Whitelisting approves specific binaries or signed scripts, preventing unknown macro execution."
+  },
+  {
+    "question": "A SOC spots command-and-control traffic over DNS. What technique is the attacker using?",
+    "choices": ["Watering hole", "DNS tunneling", "Wardriving", "MAC spoofing"],
+    "answer": "DNS tunneling",
+    "explanation": "DNS tunneling encapsulates payloads inside queries/responses to bypass firewalls."
+  },
+  {
+    "question": "Which framework focuses on detecting, responding, and recovering from incidents in five core functions?",
+    "choices": ["ISO 27001", "NIST CSF", "COBIT", "PCI DSS"],
+    "answer": "NIST CSF",
+    "explanation": "Identify, Protect, Detect, Respond, Recover are the pillars of the NIST Cybersecurity Framework."
+  }
+]

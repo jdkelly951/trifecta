@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Cert Study Suite - CompTIA prep PWA for A+, Network+, and Security+" />
+  <title>Cert Study Suite</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">⚡️</div>
+      <div>
+        <h1>Cert Study Suite</h1>
+        <p>Offline-friendly CompTIA prep</p>
+      </div>
+    </div>
+    <nav class="primary-nav" aria-label="Primary">
+      <button class="nav-link active" data-target="dashboard">Dashboard</button>
+      <button class="nav-link" data-target="flashcards">Flashcards</button>
+      <button class="nav-link" data-target="quizzes">Quizzes</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="dashboard" class="view active" aria-labelledby="dashboard-heading">
+      <div class="hero-card">
+        <div>
+          <h2 id="dashboard-heading">Welcome back</h2>
+          <p>Select a track to jump into flashcards or quizzes. All content works offline once cached.</p>
+        </div>
+        <div>
+          <button class="primary" data-target="flashcards">Start Flashcards</button>
+          <button class="ghost" data-target="quizzes">Start Quiz</button>
+        </div>
+      </div>
+      <div id="trackCards" class="track-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="flashcards" class="view" aria-labelledby="flashcards-heading">
+      <header class="section-header">
+        <div>
+          <h2 id="flashcards-heading">Flashcards</h2>
+          <p>Spaced repetition inspired practice. Rate yourself to keep cards in rotation.</p>
+        </div>
+        <div class="controls-row">
+          <label>
+            Track
+            <select id="flashcardTrack"></select>
+          </label>
+          <button id="loadFlashcards" class="primary">Load Deck</button>
+        </div>
+      </header>
+
+      <div class="flashcard-area" aria-live="polite">
+        <div class="flashcard" id="flashcard" tabindex="0">
+          <p class="eyebrow" id="flashcardMeta">Select a track to begin.</p>
+          <h3 id="flashcardPrompt">No card loaded</h3>
+          <div id="flashcardAnswer" class="flashcard-answer" hidden></div>
+          <button id="toggleAnswer" class="ghost" disabled>Show answer</button>
+        </div>
+        <div class="rating-buttons">
+          <button id="rateAgain" data-rating="again" disabled>Again</button>
+          <button id="rateGood" data-rating="good" disabled>Good</button>
+          <button id="rateEasy" data-rating="easy" disabled>Easy</button>
+        </div>
+        <div class="stats" id="flashcardStats">Progress will appear here.</div>
+      </div>
+    </section>
+
+    <section id="quizzes" class="view" aria-labelledby="quizzes-heading">
+      <header class="section-header">
+        <div>
+          <h2 id="quizzes-heading">Quizzes</h2>
+          <p>Multiple choice drills with instant feedback and explanations.</p>
+        </div>
+        <div class="controls-row">
+          <label>
+            Track
+            <select id="quizTrack"></select>
+          </label>
+          <button id="startQuiz" class="primary">Start Quiz</button>
+        </div>
+      </header>
+
+      <div class="quiz-area" aria-live="polite">
+        <div class="quiz-card" id="quizCard">
+          <p class="eyebrow" id="quizMeta">Choose a track and start a quiz.</p>
+          <h3 id="quizQuestion">No quiz active</h3>
+          <div id="quizChoices" class="choices"></div>
+          <div id="quizFeedback" class="quiz-feedback" hidden></div>
+          <button id="nextQuestion" class="ghost" disabled>Next question</button>
+        </div>
+        <div class="stats" id="quizStats">Scoreboard will appear here.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>Built as a static PWA. Add new tracks by dropping JSON files into <code>/questions</code>.</small>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

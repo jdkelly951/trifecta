@@ -1,0 +1,20 @@
+[
+  {
+    "question": "Which Windows utility lets you roll back a faulty device driver without reinstalling the OS?",
+    "choices": ["Device Manager", "Disk Cleanup", "Services", "Task Scheduler"],
+    "answer": "Device Manager",
+    "explanation": "Within Device Manager you can view driver properties and select Roll Back Driver if an older version exists."
+  },
+  {
+    "question": "An analyst suspects malware persistence via registry run keys. Which command line tool inspects them quickly?",
+    "choices": ["chkdsk", "regedit", "perfmon", "msconfig"],
+    "answer": "regedit",
+    "explanation": "Regedit (or reg.exe) allows browsing HKLM/HKCU Run and RunOnce keys to validate startup entries."
+  },
+  {
+    "question": "Which best practice minimizes downtime when applying OS patches to many endpoints?",
+    "choices": ["Disable volume shadow copies", "Use phased deployment rings", "Uninstall all old updates", "Force BIOS defaults"],
+    "answer": "Use phased deployment rings",
+    "explanation": "Pilot groups help catch regressions before rolling updates to everyone."
+  }
+]

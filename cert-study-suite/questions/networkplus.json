@@ -1,0 +1,20 @@
+[
+  {
+    "question": "Which routing protocol is link-state and uses Dijkstra's algorithm to build a topology map?",
+    "choices": ["RIP", "EIGRP", "OSPF", "BGP"],
+    "answer": "OSPF",
+    "explanation": "Open Shortest Path First floods LSAs and calculates best paths with Dijkstra."
+  },
+  {
+    "question": "What device aggregates multiple APs and handles channel assignments centrally?",
+    "choices": ["Wireless controller", "Layer 2 switch", "Repeater", "Packet shaper"],
+    "answer": "Wireless controller",
+    "explanation": "Controllers coordinate LWAPP/CAPWAP access points for RF management."
+  },
+  {
+    "question": "Which WAN technology uses labels to forward frames instead of inspecting IP headers at every hop?",
+    "choices": ["DSL", "MPLS", "LTE", "ISDN"],
+    "answer": "MPLS",
+    "explanation": "Multiprotocol Label Switching prepends short labels that core routers use for fast forwarding."
+  }
+]
