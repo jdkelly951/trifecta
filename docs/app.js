@@ -117,6 +117,7 @@ function initUpdateBannerControls() {
     refreshPending = true;
     setUpdateBannerCopy('resetting');
     setBannerPendingState(true, 'Resetting…');
+    softHideUpdateBanner();
     forceReloadSoon({ hardReset: true });
   });
 }
@@ -125,6 +126,7 @@ function startUpdateRefresh() {
   refreshPending = true;
   setUpdateBannerCopy('refreshing');
   setBannerPendingState(true, 'Reloading…');
+  softHideUpdateBanner();
 
   if (pendingWorker) {
     pendingWorker.postMessage({ type: 'SKIP_WAITING' });
@@ -622,8 +624,7 @@ function promptForRefresh(worker) {
   if (!banner) return;
 
   setUpdateBannerCopy('available');
-  banner.hidden = false;
-  banner.setAttribute('aria-hidden', 'false');
+  revealUpdateBanner();
   setBannerPendingState(false);
   document.getElementById('resetOffline')?.removeAttribute('disabled');
   document.getElementById('refreshApp')?.focus();
@@ -681,6 +682,7 @@ function scheduleReloadFallback({ delay = UPDATE_TIMEOUT_MS, hardReset = true } 
   clearReloadFallback();
   reloadFallbackTimer = window.setTimeout(() => {
     if (refreshPending) {
+      revealUpdateBanner();
       setUpdateBannerCopy('fallback');
       setBannerPendingState(true, 'Refreshing…');
       forceReloadSoon({ hardReset });
@@ -723,4 +725,20 @@ function setBannerPendingState(isPending, label = 'Reloading…') {
   if (resetButton) {
     resetButton.disabled = pending;
   }
+}
+
+function revealUpdateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (!banner) return;
+  banner.hidden = false;
+  banner.setAttribute('aria-hidden', 'false');
+  banner.dataset.dismissed = 'false';
+}
+
+function softHideUpdateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (!banner) return;
+  banner.hidden = true;
+  banner.setAttribute('aria-hidden', 'true');
+  banner.dataset.dismissed = 'true';
 }
