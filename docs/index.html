@@ -109,8 +109,14 @@
   </footer>
 
   <div id="updateBanner" class="update-banner" role="status" aria-live="polite" hidden>
-    <span>New version available. Reload to update.</span>
-    <button id="refreshApp">Reload</button>
+    <div class="update-banner-text">
+      <span id="updateBannerMessage">New version available.</span>
+      <small id="updateBannerDetail">Reload to get the latest build.</small>
+    </div>
+    <div class="update-banner-actions">
+      <button id="refreshApp" class="primary">Reload</button>
+      <button id="resetOffline" class="ghost">Reset offline data</button>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>

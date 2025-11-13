@@ -26,6 +26,25 @@ const STORAGE_KEYS = {
   quiz: 'cert-study-suite::quiz'
 };
 
+const UPDATE_COPY = {
+  available: {
+    message: 'New version available.',
+    detail: 'Reload to get the latest build.'
+  },
+  refreshing: {
+    message: 'Applying update…',
+    detail: 'Reloading to finish installation.'
+  },
+  resetting: {
+    message: 'Resetting offline data…',
+    detail: 'Clearing cached files and reloading fresh.'
+  },
+  fallback: {
+    message: 'Still updating…',
+    detail: 'Clearing cached files and trying again.'
+  }
+};
+
 const state = {
   cache: {},
   flashcards: {
@@ -48,6 +67,8 @@ let activeView = 'dashboard';
 let updatePromptShown = false;
 let refreshPending = false;
 let pendingWorker = null;
+let reloadFallbackTimer = null;
+const UPDATE_TIMEOUT_MS = 5000;
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
@@ -58,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreFlashcardStats();
   setTrackChip('flashcard');
   setTrackChip('quiz');
+  initUpdateBannerControls();
   registerServiceWorker();
 });
 
@@ -79,6 +101,56 @@ function registerServiceWorker() {
       console.error('Service worker registration failed', err);
     }
   });
+}
+
+function initUpdateBannerControls() {
+  const reloadButton = document.getElementById('refreshApp');
+  const resetButton = document.getElementById('resetOffline');
+
+  reloadButton?.addEventListener('click', () => {
+    if (refreshPending) return;
+    startUpdateRefresh();
+  });
+
+  resetButton?.addEventListener('click', () => {
+    if (refreshPending) return;
+    refreshPending = true;
+    setUpdateBannerCopy('resetting');
+    setBannerPendingState(true, 'Resetting…');
+    forceReloadSoon({ hardReset: true });
+  });
+}
+
+function startUpdateRefresh() {
+  refreshPending = true;
+  setUpdateBannerCopy('refreshing');
+  setBannerPendingState(true, 'Reloading…');
+
+  if (pendingWorker) {
+    pendingWorker.postMessage({ type: 'SKIP_WAITING' });
+    scheduleReloadFallback({ hardReset: true });
+    return;
+  }
+
+  if (!('serviceWorker' in navigator)) {
+    window.location.reload();
+    return;
+  }
+
+  navigator.serviceWorker
+    .getRegistration()
+    .then((registration) => {
+      if (registration?.waiting) {
+        pendingWorker = registration.waiting;
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        scheduleReloadFallback({ hardReset: true });
+      } else {
+        forceReloadSoon({ hardReset: true });
+      }
+    })
+    .catch(() => {
+      forceReloadSoon({ hardReset: true });
+    });
 }
 
 function initNavigation() {
@@ -532,6 +604,7 @@ function setupServiceWorkerUpdates(registration) {
   });
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    clearReloadFallback();
     if (refreshPending) {
       window.location.reload();
     } else {
@@ -541,25 +614,19 @@ function setupServiceWorkerUpdates(registration) {
 }
 
 function promptForRefresh(worker) {
+  pendingWorker = worker || pendingWorker;
   if (updatePromptShown) return;
   updatePromptShown = true;
 
   const banner = document.getElementById('updateBanner');
-  const button = document.getElementById('refreshApp');
-  if (!banner || !button) return;
+  if (!banner) return;
 
+  setUpdateBannerCopy('available');
   banner.hidden = false;
   banner.setAttribute('aria-hidden', 'false');
-  button.focus();
-  button.addEventListener(
-    'click',
-    () => {
-      refreshPending = true;
-      (worker || pendingWorker)?.postMessage?.({ type: 'SKIP_WAITING' });
-      forceReloadSoon();
-    },
-    { once: true }
-  );
+  setBannerPendingState(false);
+  document.getElementById('resetOffline')?.removeAttribute('disabled');
+  document.getElementById('refreshApp')?.focus();
 }
 
 function hideUpdateBanner() {
@@ -567,9 +634,12 @@ function hideUpdateBanner() {
   if (!banner) return;
   banner.hidden = true;
   banner.setAttribute('aria-hidden', 'true');
+  setBannerPendingState(false);
+  setUpdateBannerCopy('available');
   updatePromptShown = false;
   refreshPending = false;
   pendingWorker = null;
+  clearReloadFallback();
 }
 
 function updateVersionTag(version) {
@@ -578,7 +648,23 @@ function updateVersionTag(version) {
   tag.textContent = version ? `Build ${version}` : '';
 }
 
-async function forceReloadSoon() {
+async function forceReloadSoon(options = {}) {
+  const { hardReset = false } = options;
+  try {
+    if (hardReset && 'serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(
+        registrations.map((registration) =>
+          registration
+            .unregister()
+            .catch(() => null)
+        )
+      );
+    }
+  } catch (err) {
+    console.warn('Service worker cleanup failed', err);
+  }
+
   try {
     if ('caches' in window) {
       const keys = await caches.keys();
@@ -588,5 +674,53 @@ async function forceReloadSoon() {
     console.warn('Cache cleanup failed', err);
   } finally {
     window.location.reload();
+  }
+}
+
+function scheduleReloadFallback({ delay = UPDATE_TIMEOUT_MS, hardReset = true } = {}) {
+  clearReloadFallback();
+  reloadFallbackTimer = window.setTimeout(() => {
+    if (refreshPending) {
+      setUpdateBannerCopy('fallback');
+      setBannerPendingState(true, 'Refreshing…');
+      forceReloadSoon({ hardReset });
+    }
+  }, delay);
+}
+
+function clearReloadFallback() {
+  if (!reloadFallbackTimer) return;
+  window.clearTimeout(reloadFallbackTimer);
+  reloadFallbackTimer = null;
+}
+
+function setUpdateBannerCopy(key) {
+  const copy = UPDATE_COPY[key] || UPDATE_COPY.available;
+  setUpdateBannerText(copy.message, copy.detail);
+}
+
+function setUpdateBannerText(message, detail) {
+  const messageEl = document.getElementById('updateBannerMessage');
+  const detailEl = document.getElementById('updateBannerDetail');
+  if (messageEl) {
+    messageEl.textContent = message || '';
+  }
+  if (detailEl) {
+    detailEl.textContent = detail || '';
+    detailEl.hidden = !detail;
+  }
+}
+
+function setBannerPendingState(isPending, label = 'Reloading…') {
+  const banner = document.getElementById('updateBanner');
+  const reloadButton = document.getElementById('refreshApp');
+  const resetButton = document.getElementById('resetOffline');
+  if (!banner || !reloadButton) return;
+  const pending = Boolean(isPending);
+  banner.classList.toggle('pending', pending);
+  reloadButton.disabled = pending;
+  reloadButton.textContent = pending ? label : 'Reload';
+  if (resetButton) {
+    resetButton.disabled = pending;
   }
 }
