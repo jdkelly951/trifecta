@@ -532,9 +532,10 @@ function setupServiceWorkerUpdates(registration) {
   });
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    hideUpdateBanner();
     if (refreshPending) {
       window.location.reload();
+    } else {
+      hideUpdateBanner();
     }
   });
 }
@@ -566,7 +567,6 @@ function hideUpdateBanner() {
   banner.hidden = true;
   banner.setAttribute('aria-hidden', 'true');
   updatePromptShown = false;
-  refreshPending = false;
   pendingWorker = null;
 }
 
