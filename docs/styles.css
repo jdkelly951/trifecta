@@ -289,6 +289,9 @@ button.ghost {
   text-align: center;
   font-size: 0.85rem;
   color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .update-banner {
@@ -344,4 +347,9 @@ code {
     transform: none;
     width: auto;
   }
+}
+
+.version-tag {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }

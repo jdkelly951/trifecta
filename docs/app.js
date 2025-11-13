@@ -47,6 +47,7 @@ const state = {
 let activeView = 'dashboard';
 let updatePromptShown = false;
 let refreshPending = false;
+let pendingWorker = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
@@ -62,6 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
+
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type === 'SW_ACTIVATED') {
+      hideUpdateBanner();
+      updateVersionTag(event.data.version);
+    }
+  });
 
   window.addEventListener('load', async () => {
     try {
@@ -508,6 +516,7 @@ function setupServiceWorkerUpdates(registration) {
   if (!registration) return;
 
   if (registration.waiting) {
+    pendingWorker = registration.waiting;
     promptForRefresh(registration.waiting);
   }
 
@@ -516,12 +525,14 @@ function setupServiceWorkerUpdates(registration) {
     if (!newWorker) return;
     newWorker.addEventListener('statechange', () => {
       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+        pendingWorker = newWorker;
         promptForRefresh(newWorker);
       }
     });
   });
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    hideUpdateBanner();
     if (refreshPending) {
       window.location.reload();
     }
@@ -537,20 +548,30 @@ function promptForRefresh(worker) {
   if (!banner || !button) return;
 
   banner.hidden = false;
+  banner.setAttribute('aria-hidden', 'false');
   button.focus();
   button.addEventListener(
     'click',
     () => {
       refreshPending = true;
-      worker?.postMessage?.({ type: 'SKIP_WAITING' });
-      if (worker) {
-        worker.addEventListener('statechange', () => {
-          if (worker.state === 'activated') {
-            window.location.reload();
-          }
-        });
-      }
+      (worker || pendingWorker)?.postMessage?.({ type: 'SKIP_WAITING' });
     },
     { once: true }
   );
+}
+
+function hideUpdateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (!banner) return;
+  banner.hidden = true;
+  banner.setAttribute('aria-hidden', 'true');
+  updatePromptShown = false;
+  refreshPending = false;
+  pendingWorker = null;
+}
+
+function updateVersionTag(version) {
+  const tag = document.getElementById('versionTag');
+  if (!tag) return;
+  tag.textContent = version ? `Build ${version}` : '';
 }
