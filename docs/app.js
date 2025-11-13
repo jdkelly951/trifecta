@@ -28,6 +28,7 @@ const STORAGE_KEYS = {
   quiz: 'cert-study-suite::quiz',
   session: 'cert-study-suite::session'
 };
+const ONBOARDING_KEY = 'cert-study-suite::onboarding-v1';
 
 const state = {
   cache: {},
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initVersionTag();
   initStorageSync();
   initHeroShortcuts();
+  maybeRunOnboarding();
   autoResumeSession();
 });
 
@@ -129,6 +131,9 @@ function handleTrackShortcut(targetView, trackKey) {
   if (!targetView) return;
   activateView(targetView);
   focusPrimaryControl(targetView);
+  if (trackKey) {
+    completeOnboarding();
+  }
 
   if (!trackKey) return;
   const selectId = targetView === 'flashcards' ? 'flashcardTrack' : targetView === 'quizzes' ? 'quizTrack' : null;
@@ -165,6 +170,7 @@ function renderDashboardOverview() {
   updateSessionCard();
   updateProgressList();
   updateHeroBanner();
+  updateTrackHint();
 }
 
 function updateSessionCard() {
@@ -369,6 +375,44 @@ function autoResumeSession() {
   }, 300);
 }
 
+function maybeRunOnboarding() {
+  if (localStorage.getItem(ONBOARDING_KEY) === 'done') return;
+  const session = getSessionInfo();
+  if (session) return;
+  showOnboardingHint();
+  const switchBtn = document.getElementById('switchTrackButton');
+  const cards = document.getElementById('trackCards');
+  switchBtn?.classList.add('pulse');
+  cards?.classList.add('pulse');
+  setTimeout(() => {
+    switchBtn?.classList.remove('pulse');
+    cards?.classList.remove('pulse');
+  }, 6000);
+  cards?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showOnboardingHint() {
+  document.getElementById('trackHint')?.classList.add('visible');
+}
+
+function hideOnboardingHint() {
+  document.getElementById('trackHint')?.classList.remove('visible');
+}
+
+function updateTrackHint() {
+  const hasSession = Boolean(getSessionInfo());
+  if (hasSession || localStorage.getItem(ONBOARDING_KEY) === 'done') {
+    hideOnboardingHint();
+  } else {
+    showOnboardingHint();
+  }
+}
+
+function completeOnboarding() {
+  localStorage.setItem(ONBOARDING_KEY, 'done');
+  hideOnboardingHint();
+}
+
 async function renderDashboard() {
   const container = document.getElementById('trackCards');
   container.innerHTML = '<p>Loading tracks…</p>';
@@ -467,6 +511,7 @@ async function setupFlashcards(trackKey) {
   state.flashcards.revealed = false;
   state.flashcards.stats = getSavedFlashcardStats(trackKey);
   setTrackChip('flashcard', trackKey, `${questions.length} cards ready`);
+  completeOnboarding();
 
   showNextFlashcard();
   updateFlashcardUI();
@@ -638,6 +683,7 @@ async function startQuiz(trackKey) {
   };
 
   recordSession('quizzes', trackKey);
+  completeOnboarding();
   renderQuizQuestion();
   updateQuizStats();
 }

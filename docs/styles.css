@@ -118,6 +118,24 @@ main {
   width: 100%;
 }
 
+.onboarding-hint {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  border: 1px dashed var(--primary);
+  background: rgba(37, 99, 235, 0.08);
+  font-weight: 600;
+  color: var(--primary);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.onboarding-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .overview-grid {
   margin-top: 1.5rem;
   display: grid;
@@ -492,6 +510,22 @@ code {
 .version-tag {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.pulse {
+  animation: pulseOutline 1.25s ease-in-out infinite;
+}
+
+@keyframes pulseOutline {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
