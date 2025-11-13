@@ -21,11 +21,12 @@ const TRACKS = {
   }
 };
 
-const BUILD_VERSION = 'v2025-11-13h1';
+const BUILD_VERSION = 'v2025-11-13h2';
 
 const STORAGE_KEYS = {
   flashcards: 'cert-study-suite::flashcards',
-  quiz: 'cert-study-suite::quiz'
+  quiz: 'cert-study-suite::quiz',
+  session: 'cert-study-suite::session'
 };
 
 const state = {
@@ -53,11 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
   populateTrackSelects();
   bindFlashcardControls();
   bindQuizControls();
-  renderDashboard();
   restoreFlashcardStats();
+  renderDashboard();
+  renderDashboardOverview();
   setTrackChip('flashcard');
   setTrackChip('quiz');
   initVersionTag();
+  initStorageSync();
 });
 
 function initVersionTag() {
@@ -66,14 +69,28 @@ function initVersionTag() {
   tag.textContent = `Build ${BUILD_VERSION}`;
 }
 
+function initStorageSync() {
+  window.addEventListener('storage', (event) => {
+    if (!event.key) return;
+    if ([STORAGE_KEYS.flashcards, STORAGE_KEYS.quiz, STORAGE_KEYS.session].includes(event.key)) {
+      renderDashboardOverview();
+      updateTrackMetrics();
+      if (event.key === STORAGE_KEYS.flashcards && state.flashcards.track) {
+        state.flashcards.stats = getSavedFlashcardStats(state.flashcards.track);
+        updateFlashcardStats();
+      }
+    }
+  });
+}
+
 function initNavigation() {
   document.querySelectorAll('.nav-link').forEach((btn) => {
     btn.addEventListener('click', () => activateView(btn.dataset.target));
   });
 
-  document.querySelectorAll('.hero-card [data-target]').forEach((btn) => {
+  document.querySelectorAll('[data-shortcut="true"]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      handleTrackShortcut(btn.dataset.target);
+      handleTrackShortcut(btn.dataset.target, btn.dataset.track);
     });
   });
 }
@@ -134,6 +151,175 @@ function populateTrackSelects() {
   });
 }
 
+function renderDashboardOverview() {
+  updateSessionCard();
+  updateProgressList();
+}
+
+function updateSessionCard() {
+  const headline = document.getElementById('sessionHeadline');
+  const trackEl = document.getElementById('sessionTrack');
+  const modeEl = document.getElementById('sessionMode');
+  const updatedEl = document.getElementById('sessionUpdated');
+  const resumeFlashcardsBtn = document.getElementById('resumeFlashcards');
+  const resumeQuizBtn = document.getElementById('resumeQuiz');
+  if (!headline || !trackEl || !modeEl || !updatedEl) return;
+
+  const session = getSessionInfo();
+  if (!session) {
+    headline.textContent = 'Pick a track to kick things off';
+    trackEl.textContent = 'No history yet';
+    modeEl.textContent = '—';
+    updatedEl.textContent = 'Never';
+    resumeFlashcardsBtn?.setAttribute('disabled', true);
+    resumeFlashcardsBtn?.setAttribute('aria-disabled', 'true');
+    resumeFlashcardsBtn?.removeAttribute('data-track');
+    resumeQuizBtn?.setAttribute('disabled', true);
+    resumeQuizBtn?.setAttribute('aria-disabled', 'true');
+    resumeQuizBtn?.removeAttribute('data-track');
+    return;
+  }
+
+  const { track, mode, timestamp } = session;
+  headline.textContent = 'Ready to resume?';
+  const trackTitle = TRACKS[track]?.title || 'Unknown track';
+  trackEl.textContent = trackTitle;
+  modeEl.textContent = mode === 'flashcards' ? 'Flashcards' : 'Quiz';
+  updatedEl.textContent = formatRelativeTime(timestamp);
+
+  if (resumeFlashcardsBtn) {
+    resumeFlashcardsBtn.removeAttribute('disabled');
+    resumeFlashcardsBtn.setAttribute('aria-disabled', 'false');
+    resumeFlashcardsBtn.dataset.track = track;
+  }
+
+  if (resumeQuizBtn) {
+    resumeQuizBtn.removeAttribute('disabled');
+    resumeQuizBtn.setAttribute('aria-disabled', 'false');
+    resumeQuizBtn.dataset.track = track;
+  }
+}
+
+function updateProgressList() {
+  const list = document.getElementById('progressList');
+  if (!list) return;
+
+  list.innerHTML = '';
+  Object.entries(TRACKS).forEach(([key, track]) => {
+    const item = document.createElement('li');
+    item.innerHTML = `
+      <div>
+        <p class="progress-track">${track.title}</p>
+        <p>${getFlashcardSummary(key)}</p>
+      </div>
+      <p class="progress-score">${getQuizSummary(key)}</p>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function getSessionInfo() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.session);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (error) {
+    console.warn('Unable to parse session info', error);
+    return null;
+  }
+}
+
+function recordSession(mode, trackKey) {
+  if (!mode || !trackKey || !TRACKS[trackKey]) return;
+  const payload = {
+    mode,
+    track: trackKey,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(payload));
+  renderDashboardOverview();
+}
+
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return 'Moments ago';
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return 'Moments ago';
+  const diff = date.getTime() - Date.now();
+  const ranges = [
+    { unit: 'second', ms: 1000 },
+    { unit: 'minute', ms: 60 * 1000 },
+    { unit: 'hour', ms: 60 * 60 * 1000 },
+    { unit: 'day', ms: 24 * 60 * 60 * 1000 },
+    { unit: 'week', ms: 7 * 24 * 60 * 60 * 1000 }
+  ];
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  for (let i = ranges.length - 1; i >= 0; i -= 1) {
+    const { unit, ms } = ranges[i];
+    if (Math.abs(diff) >= ms || unit === 'second') {
+      return rtf.format(Math.round(diff / ms), unit);
+    }
+  }
+  return 'Moments ago';
+}
+
+function getFlashcardSummary(trackKey) {
+  const stats = getSavedFlashcardStats(trackKey);
+  if (!stats.seen) return 'Flashcards: not started';
+  const accuracy = Math.round((stats.correct / stats.seen) * 100);
+  return `Flashcards: ${stats.seen} ratings • ${accuracy}% confidence`;
+}
+
+function getQuizStats(trackKey) {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.quiz) || '{}');
+    return stored[trackKey];
+  } catch (error) {
+    console.warn('Unable to parse quiz stats', error);
+    return null;
+  }
+}
+
+function getQuizSummary(trackKey) {
+  const stats = getQuizStats(trackKey);
+  if (!stats) return 'Quiz: no attempts yet';
+  const lastDisplay = stats.lastTotal ? `${stats.lastScore}/${stats.lastTotal}` : '—';
+  return `Quiz best ${stats.best || stats.accuracy || 0}% • Last ${lastDisplay}`;
+}
+
+function persistQuizResult(trackKey, score, total) {
+  if (!trackKey || !total) return;
+  const stats = getQuizStats(trackKey) || {};
+  const accuracy = total ? Math.round((score / total) * 100) : 0;
+  const payload = {
+    best: Math.max(stats.best || 0, accuracy),
+    accuracy,
+    lastScore: score,
+    lastTotal: total,
+    updatedAt: new Date().toISOString()
+  };
+  const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.quiz) || '{}');
+  stored[trackKey] = payload;
+  localStorage.setItem(STORAGE_KEYS.quiz, JSON.stringify(stored));
+  renderDashboardOverview();
+}
+
+function updateTrackMetrics(trackKey) {
+  const updateSingle = (key) => {
+    const card = document.querySelector(`.track-card[data-track="${key}"]`);
+    if (!card) return;
+    const flashEl = card.querySelector('[data-track-metric="flash"]');
+    const quizEl = card.querySelector('[data-track-metric="quiz"]');
+    if (flashEl) flashEl.textContent = getFlashcardSummary(key);
+    if (quizEl) quizEl.textContent = getQuizSummary(key);
+  };
+
+  if (trackKey) {
+    updateSingle(trackKey);
+  } else {
+    Object.keys(TRACKS).forEach(updateSingle);
+  }
+}
+
 async function renderDashboard() {
   const container = document.getElementById('trackCards');
   container.innerHTML = '<p>Loading tracks…</p>';
@@ -150,12 +336,17 @@ async function renderDashboard() {
     entries.forEach(({ key, track, questions }) => {
       const card = document.createElement('article');
       card.className = 'track-card';
+      card.dataset.track = key;
       card.innerHTML = `
         <div>
           <p class="eyebrow">${questions.length} questions</p>
           <h3>${track.title}</h3>
           <p>${track.summary}</p>
         </div>
+        <ul class="track-metrics">
+          <li data-track-metric="flash">${getFlashcardSummary(key)}</li>
+          <li data-track-metric="quiz">${getQuizSummary(key)}</li>
+        </ul>
         <div class="card-actions">
           <button class="primary" data-target="flashcards" data-track="${key}">Flashcards</button>
           <button class="ghost" data-target="quizzes" data-track="${key}">Quiz</button>
@@ -167,6 +358,7 @@ async function renderDashboard() {
     container.querySelectorAll('button').forEach((button) => {
       button.addEventListener('click', () => handleTrackShortcut(button.dataset.target, button.dataset.track));
     });
+    updateTrackMetrics();
   } catch (err) {
     container.innerHTML = `<p>Unable to load track data. ${err.message}</p>`;
   }
@@ -174,6 +366,20 @@ async function renderDashboard() {
 
 function bindFlashcardControls() {
   const select = document.getElementById('flashcardTrack');
+  const flashcard = document.getElementById('flashcard');
+
+  flashcard?.addEventListener('click', (event) => {
+    if (event.target.closest('button')) return;
+    if (!state.flashcards.current) return;
+    toggleFlashcardAnswer();
+  });
+
+  flashcard?.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && state.flashcards.current) {
+      event.preventDefault();
+      toggleFlashcardAnswer();
+    }
+  });
 
   select?.addEventListener('change', (event) => {
     const track = event.target.value;
@@ -192,8 +398,7 @@ function bindFlashcardControls() {
   });
 
   document.getElementById('toggleAnswer').addEventListener('click', () => {
-    state.flashcards.revealed = !state.flashcards.revealed;
-    updateFlashcardUI();
+    toggleFlashcardAnswer();
   });
 
   ['rateAgain', 'rateGood', 'rateEasy'].forEach((id) => {
@@ -217,6 +422,8 @@ async function setupFlashcards(trackKey) {
   showNextFlashcard();
   updateFlashcardUI();
   updateFlashcardStats();
+  recordSession('flashcards', trackKey);
+  updateTrackMetrics(trackKey);
 }
 
 function buildQueue(questions, trackKey) {
@@ -234,6 +441,16 @@ function showNextFlashcard() {
   updateFlashcardUI();
 }
 
+function toggleFlashcardAnswer(forceState) {
+  if (!state.flashcards.current) return;
+  if (typeof forceState === 'boolean') {
+    state.flashcards.revealed = forceState;
+  } else {
+    state.flashcards.revealed = !state.flashcards.revealed;
+  }
+  updateFlashcardUI();
+}
+
 function updateFlashcardUI() {
   const card = state.flashcards.current;
   const prompt = document.getElementById('flashcardPrompt');
@@ -241,6 +458,7 @@ function updateFlashcardUI() {
   const meta = document.getElementById('flashcardMeta');
   const toggle = document.getElementById('toggleAnswer');
   const ratingButtons = document.querySelectorAll('.rating-buttons button');
+  const flashcard = document.getElementById('flashcard');
 
   if (!card) {
     prompt.textContent = 'Deck complete! Reload to keep practicing.';
@@ -248,6 +466,8 @@ function updateFlashcardUI() {
     answer.hidden = true;
     toggle.disabled = true;
     ratingButtons.forEach((btn) => (btn.disabled = true));
+    flashcard?.classList.remove('revealed');
+    flashcard?.classList.remove('interactive');
     return;
   }
 
@@ -258,6 +478,8 @@ function updateFlashcardUI() {
   toggle.disabled = false;
   toggle.textContent = state.flashcards.revealed ? 'Hide answer' : 'Show answer';
   ratingButtons.forEach((btn) => (btn.disabled = false));
+  flashcard?.classList.add('interactive');
+  flashcard?.classList.toggle('revealed', state.flashcards.revealed);
 }
 
 function formatAnswer(card) {
@@ -288,6 +510,8 @@ function handleFlashcardFeedback(level) {
   persistFlashcardStats();
   showNextFlashcard();
   updateFlashcardStats();
+  recordSession('flashcards', state.flashcards.track);
+  updateTrackMetrics(state.flashcards.track);
 }
 
 function updateFlashcardStats() {
@@ -364,6 +588,7 @@ async function startQuiz(trackKey) {
     answered: false
   };
 
+  recordSession('quizzes', trackKey);
   renderQuizQuestion();
   updateQuizStats();
 }
@@ -439,6 +664,9 @@ function finishQuiz() {
   document.getElementById('quizQuestion').textContent = 'Great work!';
   document.getElementById('quizMeta').textContent = TRACKS[state.quiz.track].title;
   document.getElementById('nextQuestion').disabled = true;
+  persistQuizResult(state.quiz.track, state.quiz.score, total);
+  updateTrackMetrics(state.quiz.track);
+  recordSession('quizzes', state.quiz.track);
   updateQuizStats();
 }
 

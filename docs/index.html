@@ -32,12 +32,49 @@
       <div class="hero-card">
         <div>
           <h2 id="dashboard-heading">Welcome back</h2>
-          <p>Select a track to jump into flashcards or quizzes. All content works offline once cached.</p>
+          <p>Built for quick thumb-friendly sessions. Pick a track and keep your streak alive.</p>
         </div>
         <div>
-          <button class="primary" data-target="flashcards">Start Flashcards</button>
-          <button class="ghost" data-target="quizzes">Start Quiz</button>
+          <button class="primary" data-target="flashcards" data-shortcut="true">Start Flashcards</button>
+          <button class="ghost" data-target="quizzes" data-shortcut="true">Start Quiz</button>
         </div>
+      </div>
+
+      <div class="overview-grid">
+        <article class="overview-card" id="sessionCard">
+          <div>
+            <p class="eyebrow">Continue where you left off</p>
+            <h3 id="sessionHeadline">Ready when you are</h3>
+          </div>
+          <dl class="session-stats">
+            <div>
+              <dt>Track</dt>
+              <dd id="sessionTrack">No history yet</dd>
+            </div>
+            <div>
+              <dt>Mode</dt>
+              <dd id="sessionMode">—</dd>
+            </div>
+            <div>
+              <dt>Updated</dt>
+              <dd id="sessionUpdated">Never</dd>
+            </div>
+          </dl>
+          <div class="session-actions">
+            <button class="primary" data-target="flashcards" data-shortcut="true" id="resumeFlashcards" aria-disabled="true" disabled>Resume flashcards</button>
+            <button class="ghost" data-target="quizzes" data-shortcut="true" id="resumeQuiz" aria-disabled="true" disabled>Jump into quiz</button>
+          </div>
+        </article>
+
+        <article class="overview-card" id="progressCard">
+          <div>
+            <p class="eyebrow">Track confidence</p>
+            <h3>Quick stats</h3>
+          </div>
+          <ul id="progressList" class="progress-list">
+            <li>No study data yet. Rate some cards or finish a quiz!</li>
+          </ul>
+        </article>
       </div>
       <div id="trackCards" class="track-grid" aria-live="polite"></div>
     </section>

@@ -12,6 +12,8 @@
   --success: #16a34a;
   --warning: #f97316;
   --danger: #dc2626;
+  --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --frost: rgba(248, 250, 252, 0.85);
 }
 
 * {
@@ -25,6 +27,8 @@ body {
   color: var(--text);
   display: flex;
   flex-direction: column;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
 header, main, footer {
@@ -94,12 +98,103 @@ main {
 .hero-card {
   background: var(--card);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   border-radius: 1.25rem;
   padding: 2rem;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.overview-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.overview-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.session-stats {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.session-stats div {
+  background: rgba(148, 163, 184, 0.12);
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.session-stats dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 0.2rem;
+}
+
+.session-stats dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.session-actions button {
+  flex: 1;
+  min-width: 150px;
+}
+
+.progress-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.progress-list li {
+  border: 1px dashed var(--border);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.progress-track {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+}
+
+.progress-list p {
+  margin: 0;
+}
+
+.progress-score {
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
 }
 
 .track-grid {
@@ -117,10 +212,33 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  box-shadow: var(--shadow);
+  min-height: 100%;
 }
 
 .track-card button {
   align-self: flex-start;
+}
+
+.track-metrics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card-actions button {
+  flex: 1;
 }
 
 .section-header {
@@ -157,6 +275,7 @@ select {
   background: var(--card);
   color: var(--text);
   min-width: 220px;
+  min-height: 48px;
 }
 
 select option[disabled] {
@@ -169,6 +288,8 @@ button {
   padding: 0.65rem 1.25rem;
   cursor: pointer;
   font-weight: 600;
+  min-height: 48px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:disabled {
@@ -186,6 +307,13 @@ button.ghost {
   color: var(--text);
 }
 
+.flashcard-area, .quiz-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+
 .track-chip {
   margin: 0;
   padding: 0.5rem 0.85rem;
@@ -201,12 +329,6 @@ button.ghost {
   font-weight: 600;
 }
 
-.flashcard-area, .quiz-area {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
 .flashcard, .quiz-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -216,6 +338,16 @@ button.ghost {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.flashcard.interactive {
+  cursor: pointer;
+}
+
+.flashcard.revealed {
+  border-color: rgba(37, 99, 235, 0.6);
 }
 
 .flashcard-answer {
@@ -316,7 +448,40 @@ code {
   }
 }
 
+.rating-buttons {
+  background: transparent;
+}
+
+@media (max-width: 720px) {
+  .progress-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rating-buttons {
+    position: sticky;
+    bottom: 0.5rem;
+    z-index: 5;
+    background: var(--frost);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+  }
+
+  .session-actions button {
+    min-width: unset;
+  }
+}
+
 .version-tag {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
