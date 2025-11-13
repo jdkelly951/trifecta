@@ -556,6 +556,7 @@ function promptForRefresh(worker) {
     () => {
       refreshPending = true;
       (worker || pendingWorker)?.postMessage?.({ type: 'SKIP_WAITING' });
+      forceReloadSoon();
     },
     { once: true }
   );
@@ -567,6 +568,7 @@ function hideUpdateBanner() {
   banner.hidden = true;
   banner.setAttribute('aria-hidden', 'true');
   updatePromptShown = false;
+  refreshPending = false;
   pendingWorker = null;
 }
 
@@ -574,4 +576,17 @@ function updateVersionTag(version) {
   const tag = document.getElementById('versionTag');
   if (!tag) return;
   tag.textContent = version ? `Build ${version}` : '';
+}
+
+async function forceReloadSoon() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((key) => key.startsWith('cert-study-suite-')).map((key) => caches.delete(key)));
+    }
+  } catch (err) {
+    console.warn('Cache cleanup failed', err);
+  } finally {
+    window.location.reload();
+  }
 }
