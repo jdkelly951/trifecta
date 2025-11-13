@@ -1,0 +1,242 @@
+[
+  {
+    "id": "malware-order",
+    "title": "Malware Response Runbook",
+    "type": "ordering",
+    "prompt": "Arrange the malware remediation steps in the recommended order after confirming an infection on a Windows host.",
+    "items": [
+      {
+        "id": "verify",
+        "label": "Verify and document the symptoms"
+      },
+      {
+        "id": "quarantine",
+        "label": "Quarantine the infected endpoint"
+      },
+      {
+        "id": "disable-restore",
+        "label": "Disable System Restore"
+      },
+      {
+        "id": "update-av",
+        "label": "Update anti-malware signatures"
+      },
+      {
+        "id": "remediate",
+        "label": "Run removal tools / reimage"
+      },
+      {
+        "id": "schedule",
+        "label": "Schedule scans and run Windows Update"
+      },
+      {
+        "id": "enable-restore",
+        "label": "Enable System Restore"
+      },
+      {
+        "id": "educate",
+        "label": "Educate the end user"
+      }
+    ],
+    "solution": [
+      "verify",
+      "quarantine",
+      "disable-restore",
+      "update-av",
+      "remediate",
+      "schedule",
+      "enable-restore",
+      "educate"
+    ],
+    "explanation": "CompTIA's order: verify, isolate, prevent reinfection (disable restore + update definitions), remediate, schedule follow-up updates, re-enable restore, and finish with user education.",
+    "source": "practice_exam_A"
+  },
+  {
+    "id": "windows-utilities",
+    "title": "Pick the Right Windows Utility",
+    "type": "matching",
+    "prompt": "Match each troubleshooting task to the native Windows tool you should launch.",
+    "pairs": [
+      {
+        "id": "task-manager",
+        "left": "View real-time CPU, memory, disk, and network utilization while the user reproduces the slowdown.",
+        "answer": "task-manager"
+      },
+      {
+        "id": "perfmon",
+        "left": "Log system performance counters for 24 hours to capture intermittent spikes.",
+        "answer": "performance-monitor"
+      },
+      {
+        "id": "msinfo32",
+        "left": "Check the laptop's BIOS revision plus Windows build to compare against a known-good list.",
+        "answer": "system-information"
+      },
+      {
+        "id": "scheduler",
+        "left": "Automate a daily post-remediation run of Windows Update.",
+        "answer": "task-scheduler"
+      }
+    ],
+    "options": [
+      {
+        "id": "task-manager",
+        "label": "Task Manager"
+      },
+      {
+        "id": "performance-monitor",
+        "label": "Performance Monitor"
+      },
+      {
+        "id": "system-information",
+        "label": "System Information (msinfo32)"
+      },
+      {
+        "id": "task-scheduler",
+        "label": "Task Scheduler"
+      }
+    ],
+    "explanation": "Practice Exam B focuses on pairing Task Manager, Performance Monitor, System Information, and Task Scheduler with those exact tasks.",
+    "source": "practice_exam_B"
+  },
+  {
+    "id": "scripting-match",
+    "title": "Script the Right Workflow",
+    "type": "matching",
+    "prompt": "Select the scripting language best suited for each automation request.",
+    "pairs": [
+      {
+        "id": "powershell",
+        "left": "Create an Active Directory user and add them to multiple security groups during onboarding.",
+        "answer": "powershell"
+      },
+      {
+        "id": "javascript",
+        "left": "Update a public web page so it displays the visitor's country flag using their IP address.",
+        "answer": "javascript"
+      },
+      {
+        "id": "python",
+        "left": "Back up log files across Windows, Linux, and macOS endpoints with one cross-platform script.",
+        "answer": "python"
+      },
+      {
+        "id": "vbscript",
+        "left": "Automate an Excel workbook to convert all imperial measurements to metric.",
+        "answer": "vbscript"
+      },
+      {
+        "id": "bash",
+        "left": "Restart four load-balanced Linux web servers sequentially each night.",
+        "answer": "bash"
+      }
+    ],
+    "options": [
+      {
+        "id": "powershell",
+        "label": "PowerShell (.ps1)"
+      },
+      {
+        "id": "javascript",
+        "label": "JavaScript (.js)"
+      },
+      {
+        "id": "python",
+        "label": "Python (.py)"
+      },
+      {
+        "id": "vbscript",
+        "label": "VBScript (.vbs)"
+      },
+      {
+        "id": "bash",
+        "label": "Bash shell (.sh)"
+      }
+    ],
+    "explanation": "These pairings mirror the scripting PBQ in Practice Exam B.",
+    "source": "practice_exam_B"
+  },
+  {
+    "id": "linux-ops",
+    "title": "Linux Ops Toolkit",
+    "type": "matching",
+    "prompt": "Match each administrative task to the Linux command you'd run.",
+    "pairs": [
+      {
+        "id": "dnf",
+        "left": "Install a third-party graphics package on a Fedora workstation.",
+        "answer": "dnf"
+      },
+      {
+        "id": "df",
+        "left": "Verify that the workstation still has free disk space before the install.",
+        "answer": "df"
+      },
+      {
+        "id": "nano",
+        "left": "Edit the text-based configuration file that ships with the new tool.",
+        "answer": "nano"
+      },
+      {
+        "id": "fsck",
+        "left": "Scan the filesystem for orphaned blocks after a crash.",
+        "answer": "fsck"
+      },
+      {
+        "id": "grep",
+        "left": "Find every occurrence of the word 'denied' inside /var/log/auth.log.",
+        "answer": "grep"
+      }
+    ],
+    "options": [
+      {
+        "id": "dnf",
+        "label": "dnf install"
+      },
+      {
+        "id": "df",
+        "label": "df -h"
+      },
+      {
+        "id": "nano",
+        "label": "nano"
+      },
+      {
+        "id": "fsck",
+        "label": "fsck"
+      },
+      {
+        "id": "grep",
+        "label": "grep"
+      }
+    ],
+    "explanation": "This mirrors the Linux PBQ pattern from Practice Exam C.",
+    "source": "practice_exam_C"
+  },
+  {
+    "id": "map-share",
+    "title": "Map the Engineering Share",
+    "type": "command",
+    "prompt": "From a Windows terminal, map drive letter G: to \\\\core-svr\\eng-data and make the mapping persistent across reboots.",
+    "placeholder": "Enter the full command",
+    "expected": [
+      "net use g: \\core-svr\\eng-data /persistent:yes",
+      "net use g: \\core-svr\\eng-data /persistent:Yes"
+    ],
+    "explanation": "The CompTIA PBQs expect NET USE with the drive letter first, then the UNC path and persistence flag.",
+    "source": "practice_exam_A"
+  },
+  {
+    "id": "dns-lookup",
+    "title": "Verify DNS Resolution",
+    "type": "command",
+    "prompt": "Investigate why users cannot reach app.examplelab.net by querying your default DNS server for that hostname.",
+    "placeholder": "Enter the lookup command",
+    "expected": [
+      "nslookup app.examplelab.net",
+      "NSLOOKUP APP.EXAMPLELAB.NET"
+    ],
+    "explanation": "Running NSLOOKUP against the FQDN identifies the IP being blocked.",
+    "source": "practice_exam_C"
+  }
+]

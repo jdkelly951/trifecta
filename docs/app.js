@@ -22,6 +22,7 @@ const TRACKS = {
 };
 
 const BUILD_VERSION = 'v2025-11-13h2';
+const PBQ_FILE = 'questions/aplus-pbq.json';
 
 const STORAGE_KEYS = {
   flashcards: 'cert-study-suite::flashcards',
@@ -45,7 +46,18 @@ const state = {
     currentIndex: 0,
     score: 0,
     answered: false
+  },
+  pbq: {
+    loaded: false,
+    questions: [],
+    currentIndex: 0,
+    answers: {}
   }
+};
+
+const pbqDragState = {
+  questionId: null,
+  itemId: null
 };
 
 let activeView = 'dashboard';
@@ -56,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   populateTrackSelects();
   bindFlashcardControls();
   bindQuizControls();
+  bindPbqControls().catch((error) => console.warn('PBQ init failed', error));
   restoreFlashcardStats();
   await renderDashboard();
   renderDashboardOverview();
@@ -818,4 +831,413 @@ function setTrackChip(section, trackKey, detail) {
   const label = TRACKS[trackKey].title;
   chip.textContent = detail ? `${label} • ${detail}` : label;
   chip.classList.add('active');
+}
+
+async function bindPbqControls() {
+  const select = document.getElementById('pbqSelect');
+  if (!select) return;
+
+  await loadPbqData();
+  populatePbqSelect();
+
+  select.addEventListener('change', (event) => {
+    const { value } = event.target;
+    const index = state.pbq.questions.findIndex((question) => question.id === value);
+    if (index >= 0) {
+      state.pbq.currentIndex = index;
+      ensurePbqAnswer(state.pbq.questions[index], true);
+      clearPbqFeedback();
+      renderPbq();
+    }
+  });
+
+  document.getElementById('pbqCheck')?.addEventListener('click', () => {
+    gradeCurrentPbq();
+  });
+
+  document.getElementById('pbqReset')?.addEventListener('click', () => {
+    resetCurrentPbq();
+  });
+
+  document.getElementById('prevPbq')?.addEventListener('click', () => {
+    stepPbq(-1);
+  });
+
+  document.getElementById('nextPbq')?.addEventListener('click', () => {
+    stepPbq(1);
+  });
+
+  renderPbq();
+}
+
+async function loadPbqData() {
+  if (state.pbq.loaded) return state.pbq.questions;
+  try {
+    const response = await fetch(PBQ_FILE);
+    if (!response.ok) throw new Error(`Failed to load ${PBQ_FILE}`);
+    const data = await response.json();
+    state.pbq.questions = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn('Unable to load PBQs', error);
+    state.pbq.questions = [];
+  }
+  state.pbq.loaded = true;
+  return state.pbq.questions;
+}
+
+function populatePbqSelect() {
+  const select = document.getElementById('pbqSelect');
+  if (!select) return;
+  select.innerHTML = '';
+
+  if (!state.pbq.questions.length) {
+    const option = document.createElement('option');
+    option.textContent = 'PBQ data not found';
+    option.disabled = true;
+    option.selected = true;
+    select.appendChild(option);
+    disablePbqControls(true);
+    return;
+  }
+
+  const placeholder = document.createElement('option');
+  placeholder.textContent = 'Choose a scenario';
+  placeholder.disabled = true;
+  select.appendChild(placeholder);
+
+  state.pbq.questions.forEach((question, index) => {
+    const option = document.createElement('option');
+    option.value = question.id;
+    option.textContent = `${index + 1}. ${question.title}`;
+    select.appendChild(option);
+  });
+
+  const current = state.pbq.questions[state.pbq.currentIndex] || state.pbq.questions[0];
+  state.pbq.currentIndex = state.pbq.questions.indexOf(current);
+  select.value = current?.id || '';
+  disablePbqControls(false);
+}
+
+function disablePbqControls(disabled) {
+  ['pbqSelect', 'pbqCheck', 'pbqReset', 'prevPbq', 'nextPbq'].forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.disabled = disabled;
+  });
+}
+
+function renderPbq() {
+  const title = document.getElementById('pbqTitle');
+  const prompt = document.getElementById('pbqPrompt');
+  const source = document.getElementById('pbqSource');
+  const select = document.getElementById('pbqSelect');
+
+  if (!state.pbq.questions.length) {
+    title.textContent = 'PBQ data unavailable';
+    prompt.textContent = 'Add JSON files under /questions to power this view.';
+    source.textContent = '';
+    document.getElementById('pbqWorkspace').innerHTML = '';
+    document.getElementById('pbqProgress').textContent = 'No scenarios loaded';
+    clearPbqFeedback();
+    return;
+  }
+
+  const question = state.pbq.questions[state.pbq.currentIndex] || state.pbq.questions[0];
+  state.pbq.currentIndex = state.pbq.questions.indexOf(question);
+  if (select && question) {
+    select.value = question.id;
+  }
+
+  ensurePbqAnswer(question);
+  title.textContent = question.title;
+  prompt.textContent = question.prompt;
+  source.textContent = question.source ? `Source: ${question.source.replace(/_/g, ' ')}` : '';
+  clearPbqFeedback();
+  renderPbqWorkspace(question);
+  updatePbqProgress();
+  updatePbqNavButtons();
+}
+
+function renderPbqWorkspace(question) {
+  const workspace = document.getElementById('pbqWorkspace');
+  workspace.innerHTML = '';
+  if (!question) return;
+
+  const answer = ensurePbqAnswer(question);
+
+  if (question.type === 'ordering') {
+    const list = document.createElement('ol');
+    list.className = 'pbq-order-list';
+    answer.order.forEach((itemId, index) => {
+      const item = question.items.find((entry) => entry.id === itemId);
+      if (!item) return;
+      const row = document.createElement('li');
+      row.className = 'pbq-order-item';
+      row.draggable = true;
+      row.dataset.itemId = item.id;
+
+      row.addEventListener('dragstart', (event) => handlePbqDragStart(event, question.id, item.id));
+      row.addEventListener('dragenter', handlePbqDragEnter);
+      row.addEventListener('dragleave', handlePbqDragLeave);
+      row.addEventListener('dragover', handlePbqDragOver);
+      row.addEventListener('drop', (event) => handlePbqDrop(event, question.id, item.id));
+      row.addEventListener('dragend', handlePbqDragEnd);
+
+      const label = document.createElement('span');
+      label.textContent = `${index + 1}. ${item.label}`;
+      row.appendChild(label);
+      list.appendChild(row);
+    });
+    workspace.appendChild(list);
+  } else if (question.type === 'matching') {
+    question.pairs.forEach((pair) => {
+      const row = document.createElement('div');
+      row.className = 'pbq-match-row';
+
+      const label = document.createElement('label');
+      label.textContent = pair.left;
+
+      const select = document.createElement('select');
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select an option';
+      placeholder.disabled = true;
+      select.appendChild(placeholder);
+
+      question.options.forEach((option) => {
+        const choice = document.createElement('option');
+        choice.value = option.id;
+        choice.textContent = option.label;
+        select.appendChild(choice);
+      });
+
+      select.value = answer.matches[pair.id] || '';
+      select.addEventListener('change', (event) => {
+        handleMatchSelection(question.id, pair.id, event.target.value);
+      });
+
+      row.append(label, select);
+      workspace.appendChild(row);
+    });
+  } else if (question.type === 'command') {
+    const textarea = document.createElement('textarea');
+    textarea.className = 'pbq-command-input';
+    textarea.placeholder = question.placeholder || 'Enter the command';
+    textarea.value = answer.command || '';
+    textarea.addEventListener('input', (event) => {
+      answer.command = event.target.value;
+    });
+    workspace.appendChild(textarea);
+  } else {
+    workspace.textContent = 'This PBQ type is not supported yet.';
+  }
+}
+
+function updatePbqProgress() {
+  const progress = document.getElementById('pbqProgress');
+  if (!state.pbq.questions.length) {
+    progress.textContent = 'No scenarios loaded';
+    return;
+  }
+  progress.textContent = `Scenario ${state.pbq.currentIndex + 1} of ${state.pbq.questions.length}`;
+}
+
+function updatePbqNavButtons() {
+  const prev = document.getElementById('prevPbq');
+  const next = document.getElementById('nextPbq');
+  if (!prev || !next) return;
+  prev.disabled = state.pbq.currentIndex <= 0;
+  next.disabled = state.pbq.currentIndex >= state.pbq.questions.length - 1;
+}
+
+function stepPbq(direction) {
+  if (!state.pbq.questions.length) return;
+  const newIndex = state.pbq.currentIndex + direction;
+  if (newIndex < 0 || newIndex >= state.pbq.questions.length) return;
+  state.pbq.currentIndex = newIndex;
+  const select = document.getElementById('pbqSelect');
+  select.value = state.pbq.questions[newIndex].id;
+  clearPbqFeedback();
+  renderPbq();
+}
+
+function gradeCurrentPbq() {
+  const question = state.pbq.questions[state.pbq.currentIndex];
+  if (!question) return;
+  const result = evaluatePbq(question);
+  setPbqFeedback(result.message, result.ok);
+}
+
+function evaluatePbq(question) {
+  const answer = ensurePbqAnswer(question);
+  if (question.type === 'ordering') {
+    if (!answer.order || !answer.order.length) {
+      return { ok: false, message: 'Arrange the steps before checking.' };
+    }
+    const correct =
+      question.solution.length === answer.order.length &&
+      question.solution.every((value, index) => value === answer.order[index]);
+    const detail = question.explanation ? ` ${question.explanation}` : '';
+    return {
+      ok: correct,
+      message: correct ? `Sequence looks great!${detail}` : `Adjust the sequence and try again.${detail}`
+    };
+  }
+
+  if (question.type === 'matching') {
+    const matches = question.pairs.map((pair) => answer.matches[pair.id]);
+    if (matches.includes(undefined) || matches.includes('') || matches.length < question.pairs.length) {
+      return { ok: false, message: 'Match every task to an option before checking.' };
+    }
+    const incorrect = question.pairs.filter((pair) => answer.matches[pair.id] !== pair.answer);
+    const detail = question.explanation ? ` ${question.explanation}` : '';
+    if (!incorrect.length) {
+      return { ok: true, message: `All matches correct!${detail}` };
+    }
+    return { ok: false, message: `${incorrect.length} item(s) still mismatched.${detail}` };
+  }
+
+  if (question.type === 'command') {
+    const command = (answer.command || '').trim();
+    if (!command) {
+      return { ok: false, message: 'Enter the exact command you would run.' };
+    }
+    const normalized = normalizeCommand(command);
+    const expected = (question.expected || []).map((value) => normalizeCommand(value));
+    const match = expected.some((value) => value === normalized);
+    const detail = question.explanation ? ` ${question.explanation}` : '';
+    return {
+      ok: match,
+      message: match ? `Command accepted.${detail}` : `That syntax doesn\'t match the expected command.${detail}`
+    };
+  }
+
+  return { ok: false, message: 'This PBQ type is not supported yet.' };
+}
+
+function resetCurrentPbq() {
+  const question = state.pbq.questions[state.pbq.currentIndex];
+  if (!question) return;
+  state.pbq.answers[question.id] = defaultPbqAnswer(question);
+  clearPbqFeedback();
+  renderPbq();
+}
+
+function handleMatchSelection(questionId, pairId, optionId) {
+  if (!state.pbq.answers[questionId]) {
+    state.pbq.answers[questionId] = defaultPbqAnswer(state.pbq.questions[state.pbq.currentIndex]);
+  }
+  state.pbq.answers[questionId].matches[pairId] = optionId;
+  clearPbqFeedback();
+}
+
+function reorderOrderingItems(questionId, sourceItemId, targetItemId) {
+  const answer = state.pbq.answers[questionId];
+  if (!answer?.order) return;
+  const order = [...answer.order];
+  const fromIndex = order.indexOf(sourceItemId);
+  const toIndex = order.indexOf(targetItemId);
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, sourceItemId);
+  answer.order = order;
+}
+
+function defaultPbqAnswer(question) {
+  if (!question) return {};
+  if (question.type === 'ordering') {
+    const ids = question.items.map((item) => item.id);
+    return { order: shuffle(ids) };
+  }
+  if (question.type === 'matching') {
+    return { matches: {} };
+  }
+  if (question.type === 'command') {
+    return { command: '' };
+  }
+  return {};
+}
+
+function ensurePbqAnswer(question) {
+  if (!question) return null;
+  if (!state.pbq.answers[question.id]) {
+    state.pbq.answers[question.id] = defaultPbqAnswer(question);
+  }
+  return state.pbq.answers[question.id];
+}
+
+function handlePbqDragStart(event, questionId, itemId) {
+  pbqDragState.questionId = questionId;
+  pbqDragState.itemId = itemId;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', itemId);
+  }
+  event.currentTarget?.classList.add('dragging');
+}
+
+function handlePbqDragEnter(event) {
+  if (!pbqDragState.itemId) return;
+  event.preventDefault();
+  event.currentTarget?.classList.add('drop-target');
+}
+
+function handlePbqDragLeave(event) {
+  event.currentTarget?.classList.remove('drop-target');
+}
+
+function handlePbqDragOver(event) {
+  if (!pbqDragState.itemId) return;
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function handlePbqDrop(event, questionId, targetItemId) {
+  if (!pbqDragState.itemId) return;
+  event.preventDefault();
+  event.currentTarget?.classList.remove('drop-target');
+  if (pbqDragState.questionId !== questionId || pbqDragState.itemId === targetItemId) return;
+  reorderOrderingItems(questionId, pbqDragState.itemId, targetItemId);
+  clearPbqFeedback();
+  renderPbqWorkspace(state.pbq.questions[state.pbq.currentIndex]);
+  resetPbqDragState();
+}
+
+function handlePbqDragEnd() {
+  resetPbqDragState();
+}
+
+function resetPbqDragState() {
+  document.querySelectorAll('.pbq-order-item.dragging, .pbq-order-item.drop-target').forEach((node) => {
+    node.classList.remove('dragging', 'drop-target');
+  });
+  pbqDragState.questionId = null;
+  pbqDragState.itemId = null;
+}
+
+function clearPbqFeedback() {
+  setPbqFeedback('', null);
+}
+
+function setPbqFeedback(message, isSuccess) {
+  const feedback = document.getElementById('pbqFeedback');
+  if (!feedback) return;
+  if (!message) {
+    feedback.hidden = true;
+    feedback.textContent = '';
+    feedback.classList.remove('success', 'error');
+    return;
+  }
+  feedback.hidden = false;
+  feedback.textContent = message;
+  feedback.classList.toggle('success', isSuccess === true);
+  feedback.classList.toggle('error', isSuccess === false);
+  if (isSuccess === null) {
+    feedback.classList.remove('success', 'error');
+  }
+}
+
+function normalizeCommand(input) {
+  return input.trim().replace(/\s+/g, ' ').toLowerCase();
 }

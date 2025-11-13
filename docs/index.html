@@ -24,6 +24,7 @@
       <button class="nav-link active" data-target="dashboard">Dashboard</button>
       <button class="nav-link" data-target="flashcards">Flashcards</button>
       <button class="nav-link" data-target="quizzes">Quizzes</button>
+      <button class="nav-link" data-target="pbqs">PBQs</button>
     </nav>
   </header>
 
@@ -139,6 +140,42 @@
           <button id="nextQuestion" class="ghost" disabled>Next question</button>
         </div>
         <div class="stats" id="quizStats">Scoreboard will appear here.</div>
+      </div>
+    </section>
+
+    <section id="pbqs" class="view" aria-labelledby="pbqs-heading">
+      <header class="section-header">
+        <div>
+          <h2 id="pbqs-heading">Performance Labs</h2>
+          <p>Simulate CompTIA-style PBQs: arrange steps, match tools, or enter the exact command.</p>
+        </div>
+        <div class="controls-column">
+          <label>
+            Scenario
+            <select id="pbqSelect"></select>
+          </label>
+          <div class="pbq-controls">
+            <div class="pbq-nav-buttons">
+              <button id="prevPbq" class="ghost">Previous</button>
+              <button id="nextPbq" class="ghost">Next</button>
+            </div>
+            <div class="pbq-action-buttons">
+              <button id="pbqReset" class="ghost">Reset</button>
+              <button id="pbqCheck" class="primary">Check answer</button>
+            </div>
+          </div>
+          <p class="track-chip" id="pbqProgress" role="status" aria-live="polite">No scenario loaded</p>
+        </div>
+      </header>
+
+      <div class="pbq-area" aria-live="polite">
+        <article class="pbq-card" id="pbqCard">
+          <p class="eyebrow" id="pbqSource"></p>
+          <h3 id="pbqTitle">Choose a scenario to begin.</h3>
+          <p id="pbqPrompt"></p>
+          <div id="pbqWorkspace"></div>
+          <div class="pbq-feedback" id="pbqFeedback" hidden></div>
+        </article>
       </div>
     </section>
   </main>
