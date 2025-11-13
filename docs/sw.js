@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2025-11-13a';
+const CACHE_VERSION = 'v2025-11-13b';
 const CACHE_NAME = `cert-study-suite-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   './',
