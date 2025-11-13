@@ -48,19 +48,22 @@ const state = {
 };
 
 let activeView = 'dashboard';
+let autoResumeHandled = false;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initNavigation();
   populateTrackSelects();
   bindFlashcardControls();
   bindQuizControls();
   restoreFlashcardStats();
-  renderDashboard();
+  await renderDashboard();
   renderDashboardOverview();
   setTrackChip('flashcard');
   setTrackChip('quiz');
   initVersionTag();
   initStorageSync();
+  initHeroShortcuts();
+  autoResumeSession();
 });
 
 function initVersionTag() {
@@ -80,6 +83,13 @@ function initStorageSync() {
         updateFlashcardStats();
       }
     }
+  });
+}
+
+function initHeroShortcuts() {
+  const switchBtn = document.getElementById('switchTrackButton');
+  switchBtn?.addEventListener('click', () => {
+    document.getElementById('trackCards')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
@@ -154,6 +164,7 @@ function populateTrackSelects() {
 function renderDashboardOverview() {
   updateSessionCard();
   updateProgressList();
+  updateHeroBanner();
 }
 
 function updateSessionCard() {
@@ -318,6 +329,44 @@ function updateTrackMetrics(trackKey) {
   } else {
     Object.keys(TRACKS).forEach(updateSingle);
   }
+}
+
+function updateHeroBanner() {
+  const headline = document.getElementById('dashboard-heading');
+  const subtext = document.getElementById('heroSubtext');
+  const button = document.getElementById('continueButton');
+  if (!headline || !subtext || !button) return;
+
+  const session = getSessionInfo();
+  if (!session || !TRACKS[session.track]) {
+    headline.textContent = 'Ready to study?';
+    subtext.textContent = 'Select a track below to begin.';
+    button.textContent = 'Continue studying';
+    button.setAttribute('disabled', true);
+    button.removeAttribute('data-track');
+    button.removeAttribute('data-target');
+    return;
+  }
+
+  const trackTitle = TRACKS[session.track].title;
+  const modeLabel = session.mode === 'quizzes' ? 'quiz' : 'flashcards';
+  headline.textContent = `Continue ${modeLabel}?`;
+  subtext.textContent = `${trackTitle} • ${formatRelativeTime(session.timestamp)}`;
+  button.textContent = `Resume ${modeLabel}`;
+  button.dataset.target = session.mode;
+  button.dataset.track = session.track;
+  button.removeAttribute('disabled');
+}
+
+function autoResumeSession() {
+  if (autoResumeHandled) return;
+  const session = getSessionInfo();
+  if (!session || !TRACKS[session.track]) return;
+  autoResumeHandled = true;
+  const targetView = session.mode === 'quizzes' ? 'quizzes' : 'flashcards';
+  setTimeout(() => {
+    handleTrackShortcut(targetView, session.track);
+  }, 300);
 }
 
 async function renderDashboard() {

@@ -107,6 +107,17 @@ main {
   gap: 1rem;
 }
 
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 220px;
+}
+
+.hero-actions button {
+  width: 100%;
+}
+
 .overview-grid {
   margin-top: 1.5rem;
   display: grid;
@@ -436,6 +447,10 @@ code {
 @media (max-width: 640px) {
   header, main, footer {
     padding: 1rem;
+  }
+
+  .hero-actions {
+    width: 100%;
   }
 
   .controls-row {
