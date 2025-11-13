@@ -44,6 +44,8 @@ const state = {
   }
 };
 
+let activeView = 'dashboard';
+
 document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   populateTrackSelects();
@@ -51,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
   bindQuizControls();
   renderDashboard();
   restoreFlashcardStats();
+  setTrackChip('flashcard');
+  setTrackChip('quiz');
   registerServiceWorker();
 });
 
@@ -63,35 +67,64 @@ function registerServiceWorker() {
 }
 
 function initNavigation() {
-  const sections = document.querySelectorAll('.view');
-  const navButtons = document.querySelectorAll('[data-target]');
-
-  navButtons.forEach((btn) => {
-    btn.addEventListener('click', () => switchView(btn.dataset.target));
+  document.querySelectorAll('.nav-link').forEach((btn) => {
+    btn.addEventListener('click', () => activateView(btn.dataset.target));
   });
 
-  function switchView(target) {
-    sections.forEach((section) => {
-      section.classList.toggle('active', section.id === target);
+  document.querySelectorAll('.hero-card [data-target]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      handleTrackShortcut(btn.dataset.target);
     });
-    document.querySelectorAll('.nav-link').forEach((link) => {
-      link.classList.toggle('active', link.dataset.target === target);
-    });
+  });
+}
+
+function activateView(target) {
+  if (!target) return;
+  document.querySelectorAll('.view').forEach((section) => {
+    section.classList.toggle('active', section.id === target);
+  });
+  document.querySelectorAll('.nav-link').forEach((link) => {
+    link.classList.toggle('active', link.dataset.target === target);
+  });
+
+  activeView = target;
+}
+
+function focusPrimaryControl(viewId) {
+  if (viewId === 'flashcards') {
+    document.getElementById('flashcardTrack')?.focus();
+  } else if (viewId === 'quizzes') {
+    document.getElementById('quizTrack')?.focus();
   }
 }
 
-function populateTrackSelects() {
-  const flashcardSelect = document.getElementById('flashcardTrack');
-  const quizSelect = document.getElementById('quizTrack');
-  const placeholder = document.createElement('option');
-  placeholder.textContent = 'Choose a track';
-  placeholder.value = '';
-  placeholder.disabled = true;
-  placeholder.selected = true;
+function handleTrackShortcut(targetView, trackKey) {
+  if (!targetView) return;
+  activateView(targetView);
+  focusPrimaryControl(targetView);
 
-  [flashcardSelect, quizSelect].forEach((select) => {
+  if (!trackKey) return;
+  const selectId = targetView === 'flashcards' ? 'flashcardTrack' : targetView === 'quizzes' ? 'quizTrack' : null;
+  if (!selectId) return;
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  select.value = trackKey;
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function populateTrackSelects() {
+  const selects = [document.getElementById('flashcardTrack'), document.getElementById('quizTrack')];
+
+  selects.forEach((select) => {
+    if (!select) return;
     select.innerHTML = '';
-    select.appendChild(placeholder.cloneNode(true));
+    const placeholder = document.createElement('option');
+    placeholder.textContent = 'Choose a track';
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
     Object.entries(TRACKS).forEach(([key, track]) => {
       const option = document.createElement('option');
       option.value = key;
@@ -132,11 +165,7 @@ async function renderDashboard() {
     });
 
     container.querySelectorAll('button').forEach((button) => {
-      button.addEventListener('click', () => {
-        document.querySelector(`[data-target="${button.dataset.target}"]`).click();
-        const selectId = button.dataset.target === 'flashcards' ? 'flashcardTrack' : 'quizTrack';
-        document.getElementById(selectId).value = button.dataset.track;
-      });
+      button.addEventListener('click', () => handleTrackShortcut(button.dataset.target, button.dataset.track));
     });
   } catch (err) {
     container.innerHTML = `<p>Unable to load track data. ${err.message}</p>`;
@@ -144,8 +173,19 @@ async function renderDashboard() {
 }
 
 function bindFlashcardControls() {
+  const select = document.getElementById('flashcardTrack');
+
+  select?.addEventListener('change', (event) => {
+    const track = event.target.value;
+    if (track) {
+      setupFlashcards(track);
+    } else {
+      setTrackChip('flashcard');
+    }
+  });
+
   document.getElementById('loadFlashcards').addEventListener('click', () => {
-    const track = document.getElementById('flashcardTrack').value;
+    const track = select?.value;
     if (track) {
       setupFlashcards(track);
     }
@@ -172,6 +212,7 @@ async function setupFlashcards(trackKey) {
   state.flashcards.queue = buildQueue(questions, trackKey);
   state.flashcards.revealed = false;
   state.flashcards.stats = getSavedFlashcardStats(trackKey);
+  setTrackChip('flashcard', trackKey, `${questions.length} cards ready`);
 
   showNextFlashcard();
   updateFlashcardUI();
@@ -254,11 +295,13 @@ function updateFlashcardStats() {
   const element = document.getElementById('flashcardStats');
   if (!track) {
     element.textContent = 'Progress will appear here.';
+    setTrackChip('flashcard');
     return;
   }
 
   const accuracy = stats.seen ? Math.round((stats.correct / stats.seen) * 100) : 0;
   element.textContent = `${TRACKS[track].title}: ${stats.seen} ratings • ${accuracy}% confidence`;
+  setTrackChip('flashcard', track, `${stats.seen} ratings • ${accuracy}% confidence`);
 }
 
 function persistFlashcardStats() {
@@ -279,8 +322,19 @@ function getSavedFlashcardStats(track) {
 }
 
 function bindQuizControls() {
+  const select = document.getElementById('quizTrack');
+
+  select?.addEventListener('change', (event) => {
+    const track = event.target.value;
+    if (track) {
+      startQuiz(track);
+    } else {
+      setTrackChip('quiz');
+    }
+  });
+
   document.getElementById('startQuiz').addEventListener('click', () => {
-    const track = document.getElementById('quizTrack').value;
+    const track = select?.value;
     if (track) {
       startQuiz(track);
     }
@@ -385,12 +439,14 @@ function finishQuiz() {
   document.getElementById('quizQuestion').textContent = 'Great work!';
   document.getElementById('quizMeta').textContent = TRACKS[state.quiz.track].title;
   document.getElementById('nextQuestion').disabled = true;
+  updateQuizStats();
 }
 
 function updateQuizStats() {
   const element = document.getElementById('quizStats');
   if (!state.quiz.track) {
     element.textContent = 'Scoreboard will appear here.';
+    setTrackChip('quiz');
     return;
   }
 
@@ -398,6 +454,7 @@ function updateQuizStats() {
   const answered = Math.min(state.quiz.currentIndex + (state.quiz.answered ? 1 : 0), total);
   const accuracy = answered ? Math.round((state.quiz.score / answered) * 100) : 0;
   element.textContent = `${TRACKS[state.quiz.track].title}: ${state.quiz.score}/${answered} correct • ${accuracy}% accuracy`;
+  setTrackChip('quiz', state.quiz.track, `${state.quiz.score}/${answered} correct • ${accuracy}% accuracy`);
 }
 
 async function loadQuestionSet(trackKey) {
@@ -423,4 +480,19 @@ function shuffle(list) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+}
+
+function setTrackChip(section, trackKey, detail) {
+  const chip = document.getElementById(`${section}TrackChip`);
+  if (!chip) return;
+
+  if (!trackKey || !TRACKS[trackKey]) {
+    chip.textContent = 'No track selected';
+    chip.classList.remove('active');
+    return;
+  }
+
+  const label = TRACKS[trackKey].title;
+  chip.textContent = detail ? `${label} • ${detail}` : label;
+  chip.classList.add('active');
 }

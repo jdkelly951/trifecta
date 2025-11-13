@@ -133,8 +133,9 @@ main {
 
 .controls-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 label {
@@ -154,6 +155,12 @@ select {
   border-radius: 0.75rem;
   border: 1px solid var(--border);
   background: var(--card);
+  color: var(--text);
+  min-width: 220px;
+}
+
+select option[disabled] {
+  color: var(--text-muted);
 }
 
 button {
@@ -177,6 +184,21 @@ button.primary {
 button.ghost {
   background: var(--ghost);
   color: var(--text);
+}
+
+.track-chip {
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.06);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.track-chip.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .flashcard-area, .quiz-area {
