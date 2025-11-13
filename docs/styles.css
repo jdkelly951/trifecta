@@ -250,7 +250,8 @@ button.ghost {
   border: 1px solid var(--border);
   padding: 0.85rem;
   text-align: left;
-  background: transparent;
+  background: var(--card);
+  color: var(--text);
 }
 
 .choice.correct {
