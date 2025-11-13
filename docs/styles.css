@@ -294,60 +294,6 @@ button.ghost {
   gap: 0.35rem;
 }
 
-.update-banner {
-  position: fixed;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  background: var(--text);
-  color: var(--card);
-  padding: 0.85rem 1.25rem;
-  border-radius: 0.9rem;
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.25);
-  z-index: 999;
-  width: min(640px, calc(100% - 2rem));
-}
-
-.update-banner button {
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.update-banner .ghost {
-  background: transparent;
-  color: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-.update-banner-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 200px;
-}
-
-.update-banner-text small {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-.update-banner-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
 code {
   font-family: 'IBM Plex Mono', SFMono-Regular, Consolas, monospace;
   background: rgba(148, 163, 184, 0.2);
@@ -367,20 +313,6 @@ code {
 
   .flashcard, .quiz-card {
     min-height: unset;
-  }
-
-  .update-banner {
-    left: 1rem;
-    right: 1rem;
-    transform: none;
-    width: auto;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .update-banner-actions {
-    width: 100%;
-    justify-content: flex-start;
   }
 }
 
