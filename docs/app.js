@@ -45,6 +45,8 @@ const UPDATE_COPY = {
   }
 };
 
+const UPDATE_SESSION_KEY = 'cert-study-suite::pending-update';
+
 const state = {
   cache: {},
   flashcards: {
@@ -109,12 +111,14 @@ function initUpdateBannerControls() {
 
   reloadButton?.addEventListener('click', () => {
     if (refreshPending) return;
+    markPendingUpdateAttempt();
     startUpdateRefresh();
   });
 
   resetButton?.addEventListener('click', () => {
     if (refreshPending) return;
     refreshPending = true;
+    markPendingUpdateAttempt();
     setUpdateBannerCopy('resetting');
     setBannerPendingState(true, 'Resetting…');
     softHideUpdateBanner();
@@ -617,6 +621,10 @@ function setupServiceWorkerUpdates(registration) {
 
 function promptForRefresh(worker) {
   pendingWorker = worker || pendingWorker;
+  if (shouldAutoHandleUpdate()) {
+    startUpdateRefresh();
+    return;
+  }
   if (updatePromptShown) return;
   updatePromptShown = true;
 
@@ -641,6 +649,7 @@ function hideUpdateBanner() {
   refreshPending = false;
   pendingWorker = null;
   clearReloadFallback();
+  clearPendingUpdateAttempt();
 }
 
 function updateVersionTag(version) {
@@ -741,4 +750,29 @@ function softHideUpdateBanner() {
   banner.hidden = true;
   banner.setAttribute('aria-hidden', 'true');
   banner.dataset.dismissed = 'true';
+}
+
+function markPendingUpdateAttempt() {
+  try {
+    sessionStorage.setItem(UPDATE_SESSION_KEY, '1');
+  } catch (err) {
+    console.warn('Unable to persist update flag', err);
+  }
+}
+
+function clearPendingUpdateAttempt() {
+  try {
+    sessionStorage.removeItem(UPDATE_SESSION_KEY);
+  } catch (err) {
+    console.warn('Unable to clear update flag', err);
+  }
+}
+
+function shouldAutoHandleUpdate() {
+  try {
+    return sessionStorage.getItem(UPDATE_SESSION_KEY) === '1';
+  } catch (err) {
+    console.warn('Unable to read update flag', err);
+    return false;
+  }
 }
