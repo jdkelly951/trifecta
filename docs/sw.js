@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2025-11-13b';
+const CACHE_VERSION = 'v2025-11-13c';
 const CACHE_NAME = `cert-study-suite-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   './',
@@ -16,9 +16,7 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
 });
 
 self.addEventListener('activate', (event) => {
