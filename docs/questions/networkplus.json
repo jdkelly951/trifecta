@@ -1,20 +1,227 @@
 [
   {
     "question": "Which routing protocol is link-state and uses Dijkstra's algorithm to build a topology map?",
-    "choices": ["RIP", "EIGRP", "OSPF", "BGP"],
+    "choices": [
+      "RIP",
+      "EIGRP",
+      "OSPF",
+      "BGP"
+    ],
     "answer": "OSPF",
     "explanation": "Open Shortest Path First floods LSAs and calculates best paths with Dijkstra."
   },
   {
     "question": "What device aggregates multiple APs and handles channel assignments centrally?",
-    "choices": ["Wireless controller", "Layer 2 switch", "Repeater", "Packet shaper"],
+    "choices": [
+      "Wireless controller",
+      "Layer 2 switch",
+      "Repeater",
+      "Packet shaper"
+    ],
     "answer": "Wireless controller",
     "explanation": "Controllers coordinate LWAPP/CAPWAP access points for RF management."
   },
   {
     "question": "Which WAN technology uses labels to forward frames instead of inspecting IP headers at every hop?",
-    "choices": ["DSL", "MPLS", "LTE", "ISDN"],
+    "choices": [
+      "DSL",
+      "MPLS",
+      "LTE",
+      "ISDN"
+    ],
     "answer": "MPLS",
     "explanation": "Multiprotocol Label Switching prepends short labels that core routers use for fast forwarding."
+  },
+  {
+    "question": "Which IPv6 prefix identifies the link-local addresses automatically generated for neighbor discovery on every interface?",
+    "choices": [
+      "fe80::/10",
+      "fc00::/7",
+      "2001:db8::/32",
+      "ff00::/8"
+    ],
+    "answer": "fe80::/10",
+    "explanation": "Link-local addresses always begin with fe80::/10 and are only valid on the local segment, enabling neighbor discovery and SLAAC.",
+    "tags": [
+      "ipv6",
+      "fundamentals",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "A switch stack must bundle four 10 GbE ports to the core so traffic keeps flowing even if a member link fails. Which protocol should you configure on both ends?",
+    "choices": [
+      "LACP",
+      "HSRP",
+      "RSTP",
+      "VRRP"
+    ],
+    "answer": "LACP",
+    "explanation": "Link Aggregation Control Protocol negotiates port-channel membership, providing redundancy and load sharing across multiple physical links.",
+    "tags": [
+      "switching",
+      "high-availability",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "You need wired workstations to authenticate with individual Active Directory credentials before they're placed into the correct VLAN. Which access control method meets this requirement?",
+    "choices": [
+      "802.1X with RADIUS",
+      "MAC filtering",
+      "Captive portal",
+      "Static ACL on the router"
+    ],
+    "answer": "802.1X with RADIUS",
+    "explanation": "IEEE 802.1X uses EAP conversations with a RADIUS server so the switch can validate the user or device and apply dynamic VLAN assignments.",
+    "tags": [
+      "security",
+      "access-control",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Branch clients must lease IP information from a DHCP server located at headquarters across a routed WAN. What router configuration enables that workflow?",
+    "choices": [
+      "Configure a DHCP relay (ip helper-address)",
+      "Enable port mirroring on the switch uplink",
+      "Create a static ARP entry for the DHCP server",
+      "Increase the MTU on the WAN interface"
+    ],
+    "answer": "Configure a DHCP relay (ip helper-address)",
+    "explanation": "DHCP relay (Cisco's ip helper-address) forwards broadcast discovery packets as unicast to the remote DHCP server so the clients can receive leases over the routed network.",
+    "tags": [
+      "services",
+      "routing",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "A data center run requires 10 Gb connectivity for 300 meters through an area with high electromagnetic interference. Which cabling option is the best fit?",
+    "choices": [
+      "OM3 multimode fiber",
+      "Cat 6 unshielded twisted pair",
+      "RG-6 coaxial",
+      "Cat 5e shielded twisted pair"
+    ],
+    "answer": "OM3 multimode fiber",
+    "explanation": "OM3 (laser-optimized multimode) fiber comfortably carries 10GBASE-SR out to 300 meters and is immune to EMI in plant rooms.",
+    "tags": [
+      "cabling",
+      "design",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which SNMP version adds per-message authentication and encryption so credentials cannot be sniffed or replayed?",
+    "choices": [
+      "SNMPv3",
+      "SNMPv2c",
+      "SNMPv1",
+      "RMON"
+    ],
+    "answer": "SNMPv3",
+    "explanation": "SNMPv3 introduced the User Security Model (USM) with authentication and privacy, protecting management traffic with hashing and encryption.",
+    "tags": [
+      "management",
+      "security",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "You need to identify the top talkers and application ports on a congested WAN link by exporting flow records from the edge routers. Which telemetry technology accomplishes this?",
+    "choices": [
+      "NetFlow/IPFIX",
+      "Syslog",
+      "SNMP traps",
+      "LLDP"
+    ],
+    "answer": "NetFlow/IPFIX",
+    "explanation": "Flow technologies such as NetFlow or IPFIX summarize conversations (source, destination, protocol, bytes) so you can see which hosts consume the bandwidth.",
+    "tags": [
+      "monitoring",
+      "performance",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Access layer ports connected to user PCs take 30 seconds to begin forwarding after a reboot. Which feature lets those ports transition immediately while still shutting down if another switch is connected?",
+    "choices": [
+      "Enable PortFast with BPDU Guard",
+      "Convert the ports to trunks",
+      "Disable spanning tree entirely",
+      "Increase the bridge priority"
+    ],
+    "answer": "Enable PortFast with BPDU Guard",
+    "explanation": "PortFast (edge) skips the listening/learning states for endpoints, and pairing it with BPDU Guard protects against accidental switch loops by err-disabling the port if BPDUs appear.",
+    "tags": [
+      "switching",
+      "operations",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which 802.11ax enhancement subdivides a Wi-Fi 6 channel into resource units so multiple clients can transmit simultaneously with less contention?",
+    "choices": [
+      "OFDMA",
+      "Channel bonding",
+      "Beamforming",
+      "Guard intervals"
+    ],
+    "answer": "OFDMA",
+    "explanation": "Orthogonal Frequency-Division Multiple Access slices the channel into small resource units that the AP schedules per client, supporting efficient multi-user uplink and downlink traffic.",
+    "tags": [
+      "wireless",
+      "performance",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which switch security feature blocks rogue DHCP servers by allowing DHCP offers only from trusted interfaces?",
+    "choices": [
+      "DHCP snooping",
+      "Port mirroring",
+      "MAC flood guard",
+      "Private VLANs"
+    ],
+    "answer": "DHCP snooping",
+    "explanation": "DHCP snooping builds a table of trusted bindings and drops offers seen on untrusted ports, preventing attackers from leasing addresses to clients.",
+    "tags": [
+      "security",
+      "access-control",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which overlay technology encapsulates Layer 2 frames inside UDP packets with a 24-bit segment ID, allowing more than 16 million logical networks across the data center fabric?",
+    "choices": [
+      "VXLAN",
+      "MPLS",
+      "GRE",
+      "PPP"
+    ],
+    "answer": "VXLAN",
+    "explanation": "Virtual Extensible LAN (VXLAN) wraps Ethernet frames inside UDP and uses a 24-bit VXLAN Network Identifier, scaling far beyond the 4094 VLAN limit.",
+    "tags": [
+      "virtualization",
+      "data-center",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "A fiber run occasionally drops after being repaired. Which tool pinpoints reflections or breaks by injecting light pulses and graphing the return loss over distance?",
+    "choices": [
+      "Optical time-domain reflectometer",
+      "Optical power meter",
+      "Multimeter",
+      "Cable toner"
+    ],
+    "answer": "Optical time-domain reflectometer",
+    "explanation": "An OTDR displays the distance to splices, connectors, and faults by measuring backscatter, helping you locate the exact point of failure on fiber links.",
+    "tags": [
+      "troubleshooting",
+      "fiber",
+      "N10-009"
+    ]
   }
 ]

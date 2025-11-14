@@ -41,12 +41,13 @@ cert-study-suite/
 4. Refresh the site; the PBQ dropdown auto-populates with your new scenario.
 
 ## Local Development
-1. From the `cert-study-suite` folder, run a lightweight static server so that fetch calls work properly:
-   ```bash
-   python3 -m http.server 4173
-   ```
+1. From the repo root run `make serve` (or `python3 -m http.server 4173` inside `docs/`) so that the fetch calls can read the JSON banks over HTTP.
 2. Visit `http://localhost:4173`.
 3. Any changes to files will be reflected on refresh.
+
+## Validating Question Banks
+- Run `make check` (alias for `python3 scripts/validate_questions.py`) before committing.  
+  It lints every multiple-choice JSON file, enforces that answers match available choices, and sanity-checks PBQ definitions.
 
 ## Deploying to GitHub Pages
 1. Push the entire `cert-study-suite` folder to a GitHub repository (e.g., `username/cert-study-suite`).

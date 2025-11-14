@@ -1,107 +1,322 @@
 [
   {
     "question": "Which Windows utility lets you roll back a faulty device driver without reinstalling the OS?",
-    "choices": ["Device Manager", "Disk Cleanup", "Services", "Task Scheduler"],
+    "choices": [
+      "Device Manager",
+      "Disk Cleanup",
+      "Services",
+      "Task Scheduler"
+    ],
     "answer": "Device Manager",
     "explanation": "Within Device Manager you can view driver properties and select Roll Back Driver if an older version exists.",
-    "tags": ["windows", "troubleshooting", "220-1202"]
+    "tags": [
+      "windows",
+      "troubleshooting",
+      "220-1202"
+    ]
   },
   {
     "question": "An analyst suspects malware persistence via registry run keys. Which command line tool inspects them quickly?",
-    "choices": ["chkdsk", "regedit", "perfmon", "msconfig"],
+    "choices": [
+      "chkdsk",
+      "regedit",
+      "perfmon",
+      "msconfig"
+    ],
     "answer": "regedit",
     "explanation": "Regedit (or reg.exe) allows browsing HKLM/HKCU Run and RunOnce keys to validate startup entries.",
-    "tags": ["windows", "security", "220-1202"]
+    "tags": [
+      "windows",
+      "security",
+      "220-1202"
+    ]
   },
   {
     "question": "Which best practice minimizes downtime when applying OS patches to many endpoints?",
-    "choices": ["Disable volume shadow copies", "Use phased deployment rings", "Uninstall all old updates", "Force BIOS defaults"],
+    "choices": [
+      "Disable volume shadow copies",
+      "Use phased deployment rings",
+      "Uninstall all old updates",
+      "Force BIOS defaults"
+    ],
     "answer": "Use phased deployment rings",
     "explanation": "Pilot groups help catch regressions before rolling updates to everyone.",
-    "tags": ["operations", "patching", "220-1202"]
+    "tags": [
+      "operations",
+      "patching",
+      "220-1202"
+    ]
   },
   {
     "question": "During a Windows 11 readiness check, which hardware requirement ensures encryption keys can live in tamper-resistant silicon on the motherboard?",
-    "choices": ["TPM 2.0", "Legacy BIOS", "Intel SpeedStep", "ECC SODIMM"],
+    "choices": [
+      "TPM 2.0",
+      "Legacy BIOS",
+      "Intel SpeedStep",
+      "ECC SODIMM"
+    ],
     "answer": "TPM 2.0",
     "explanation": "Windows 11 requires a Trusted Platform Module 2.0 so BitLocker and credential guard can store secrets in hardware.",
-    "tags": ["windows", "security", "220-1202"]
+    "tags": [
+      "windows",
+      "security",
+      "220-1202"
+    ]
   },
   {
     "question": "System File Checker (sfc /scannow) reports corrupt files but cannot fix them. Which command should you run next to repair the component store using Windows Update as the source?",
-    "choices": ["DISM /Online /Cleanup-Image /RestoreHealth", "gpupdate /force", "netsh winsock reset", "bootrec /fixmbr"],
+    "choices": [
+      "DISM /Online /Cleanup-Image /RestoreHealth",
+      "gpupdate /force",
+      "netsh winsock reset",
+      "bootrec /fixmbr"
+    ],
     "answer": "DISM /Online /Cleanup-Image /RestoreHealth",
     "explanation": "The DISM RestoreHealth option validates the WinSxS store and pulls clean copies of system files from Windows Update or a mounted image.",
-    "tags": ["windows", "troubleshooting", "220-1202"]
+    "tags": [
+      "windows",
+      "troubleshooting",
+      "220-1202"
+    ]
   },
   {
     "question": "While troubleshooting authentication failures on Ubuntu, you need to watch /var/log/auth.log in real time. Which command accomplishes this?",
-    "choices": ["tail -f /var/log/auth.log", "chmod 755 /var/log/auth.log", "lspci -vv", "scp /var/log/auth.log user@host"],
+    "choices": [
+      "tail -f /var/log/auth.log",
+      "chmod 755 /var/log/auth.log",
+      "lspci -vv",
+      "scp /var/log/auth.log user@host"
+    ],
     "answer": "tail -f /var/log/auth.log",
     "explanation": "The tail -f command follows new log entries live, which is ideal when you need to see authentication events as they occur.",
-    "tags": ["linux", "troubleshooting", "220-1202"]
+    "tags": [
+      "linux",
+      "troubleshooting",
+      "220-1202"
+    ]
   },
   {
     "question": "A macOS user wants automatic hourly snapshots to an external drive for quick bare-metal restores. Which built-in feature should they configure?",
-    "choices": ["Time Machine", "Disk Utility First Aid", "Boot Camp Assistant", "Migration Assistant"],
+    "choices": [
+      "Time Machine",
+      "Disk Utility First Aid",
+      "Boot Camp Assistant",
+      "Migration Assistant"
+    ],
     "answer": "Time Machine",
     "explanation": "Time Machine schedules hourly, daily, and weekly snapshots to an attached disk, allowing full-system or file-level restores.",
-    "tags": ["macOS", "operations", "220-1202"]
+    "tags": [
+      "macOS",
+      "operations",
+      "220-1202"
+    ]
   },
   {
     "question": "An organization uses Microsoft 365 and wants contractors to access SharePoint Online only from devices that pass compliance checks. Which control enforces this?",
-    "choices": ["Conditional Access policy that requires device compliance", "Static NAT on the firewall", "Universal Plug and Play", "Guest Wi-Fi captive portal"],
+    "choices": [
+      "Conditional Access policy that requires device compliance",
+      "Static NAT on the firewall",
+      "Universal Plug and Play",
+      "Guest Wi-Fi captive portal"
+    ],
     "answer": "Conditional Access policy that requires device compliance",
     "explanation": "Azure AD Conditional Access can gate SaaS apps so only devices marked compliant by Intune or another MDM are granted tokens.",
-    "tags": ["cloud", "security", "220-1202"]
+    "tags": [
+      "cloud",
+      "security",
+      "220-1202"
+    ]
   },
   {
     "question": "A security team wants to stop spoofed emails that use look-alike domains before they reach inboxes. Which email authentication control should they deploy with a reject policy?",
-    "choices": ["DMARC with aligned SPF/DKIM", "Port mirroring", "SNMPv3", "802.11w"],
+    "choices": [
+      "DMARC with aligned SPF/DKIM",
+      "Port mirroring",
+      "SNMPv3",
+      "802.11w"
+    ],
     "answer": "DMARC with aligned SPF/DKIM",
     "explanation": "DMARC builds on SPF and DKIM alignment and lets the domain owner request that receivers quarantine or reject failing messages, blocking most spoofs.",
-    "tags": ["security", "email", "220-1202"]
+    "tags": [
+      "security",
+      "email",
+      "220-1202"
+    ]
   },
   {
     "question": "An incident responder confirms ransomware is executing on three workstations. According to the incident-response lifecycle, what action should occur immediately after identification?",
-    "choices": ["Isolate the affected hosts from the network", "Reimage every workstation in the company", "Notify regulators before containment", "Delete the ransomware notes"],
+    "choices": [
+      "Isolate the affected hosts from the network",
+      "Reimage every workstation in the company",
+      "Notify regulators before containment",
+      "Delete the ransomware notes"
+    ],
     "answer": "Isolate the affected hosts from the network",
     "explanation": "Containment follows identification; disconnecting infected systems prevents lateral movement before eradication and recovery steps.",
-    "tags": ["security", "incident-response", "220-1202"]
+    "tags": [
+      "security",
+      "incident-response",
+      "220-1202"
+    ]
   },
   {
     "question": "Which Windows tool graphs a Stability Index from 1 to 10 and correlates crashes, driver installs, and updates on a timeline?",
-    "choices": ["Reliability Monitor", "Disk Management", "Resource Monitor", "Performance Monitor"],
+    "choices": [
+      "Reliability Monitor",
+      "Disk Management",
+      "Resource Monitor",
+      "Performance Monitor"
+    ],
     "answer": "Reliability Monitor",
     "explanation": "Reliability Monitor visualizes system events alongside a stability score so you can pinpoint which change introduced failures.",
-    "tags": ["windows", "troubleshooting", "220-1202"]
+    "tags": [
+      "windows",
+      "troubleshooting",
+      "220-1202"
+    ]
   },
   {
     "question": "A user wants to reinstall Windows while keeping personal files and Microsoft Store apps. Which recovery option should you choose?",
-    "choices": ["Reset this PC and select Keep my files", "System Restore to the oldest point", "Clean install from USB media", "Enable Safe Mode"],
+    "choices": [
+      "Reset this PC and select Keep my files",
+      "System Restore to the oldest point",
+      "Clean install from USB media",
+      "Enable Safe Mode"
+    ],
     "answer": "Reset this PC and select Keep my files",
     "explanation": "Reset this PC can refresh Windows while preserving user libraries and Store apps when you pick the Keep my files workflow.",
-    "tags": ["windows", "recovery", "220-1202"]
+    "tags": [
+      "windows",
+      "recovery",
+      "220-1202"
+    ]
   },
   {
     "question": "Which access control model assigns permissions to predefined job roles so onboarding a user only requires selecting the correct role?",
-    "choices": ["Role-based access control (RBAC)", "Mandatory access control (MAC)", "Discretionary access control (DAC)", "Rule-based firewall"],
+    "choices": [
+      "Role-based access control (RBAC)",
+      "Mandatory access control (MAC)",
+      "Discretionary access control (DAC)",
+      "Rule-based firewall"
+    ],
     "answer": "Role-based access control (RBAC)",
     "explanation": "RBAC maps permissions to roles such as Help Desk or Auditor, simplifying provisioning and enforcing least privilege.",
-    "tags": ["security", "operations", "220-1202"]
+    "tags": [
+      "security",
+      "operations",
+      "220-1202"
+    ]
   },
   {
     "question": "Company-managed smartphones must erase corporate data after 10 failed PIN attempts. Which MDM enforcement action meets this requirement?",
-    "choices": ["Configure a device-wipe threshold policy", "Disable Bluetooth pairing", "Turn on airplane mode", "Enable NFC payments"],
+    "choices": [
+      "Configure a device-wipe threshold policy",
+      "Disable Bluetooth pairing",
+      "Turn on airplane mode",
+      "Enable NFC payments"
+    ],
     "answer": "Configure a device-wipe threshold policy",
     "explanation": "Most MDM suites can trigger a device wipe after a defined number of failed unlock attempts, protecting data on lost or brute-forced phones.",
-    "tags": ["mobile", "security", "220-1202"]
+    "tags": [
+      "mobile",
+      "security",
+      "220-1202"
+    ]
   },
   {
     "question": "While analyzing a suspected compromise, you need a built-in Windows command that lists current network connections along with each owning process ID. Which command fulfills that need?",
-    "choices": ["netstat -ano", "ipconfig /flushdns", "nslookup -type=mx", "whoami /groups"],
+    "choices": [
+      "netstat -ano",
+      "ipconfig /flushdns",
+      "nslookup -type=mx",
+      "whoami /groups"
+    ],
     "answer": "netstat -ano",
     "explanation": "netstat with the -ano switches outputs protocol, local/remote addresses, state, and PID so you can trace connections back to processes.",
-    "tags": ["windows", "security", "220-1202"]
+    "tags": [
+      "windows",
+      "security",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "After cloning a Windows 11 drive, the system reports that the Boot Configuration Data file is missing. Which WinRE command rebuilds the boot entries?",
+    "choices": [
+      "bootrec /rebuildbcd",
+      "sfc /verifyonly",
+      "diskpart clean",
+      "chkdsk /r"
+    ],
+    "answer": "bootrec /rebuildbcd",
+    "explanation": "Running bootrec with the /rebuildbcd switch scans all disks for Windows installations and recreates the Boot Configuration Data store so the system can start again.",
+    "tags": [
+      "windows",
+      "recovery",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "Which macOS security feature restricts apps to those from the App Store or identified developers unless an administrator overrides it?",
+    "choices": [
+      "Gatekeeper",
+      "Spotlight",
+      "Mission Control",
+      "Handoff"
+    ],
+    "answer": "Gatekeeper",
+    "explanation": "Gatekeeper enforces code-signing requirements for downloaded apps, blocking unsigned binaries by default to reduce malware installation paths.",
+    "tags": [
+      "macOS",
+      "security",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "While troubleshooting a failing web service on Linux, you need to stream live logs from the systemd journal for nginx.service. Which command accomplishes this?",
+    "choices": [
+      "journalctl -u nginx -f",
+      "systemctl isolate nginx",
+      "crontab -l",
+      "top -H"
+    ],
+    "answer": "journalctl -u nginx -f",
+    "explanation": "journalctl with -u targets a unit and -f tails the log, so you can watch nginx.service events populate in real time.",
+    "tags": [
+      "linux",
+      "troubleshooting",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "A developer wants to run native Linux utilities on Windows 11 without maintaining a full virtual machine. Which built-in feature should they enable?",
+    "choices": [
+      "Windows Subsystem for Linux",
+      "Windows Sandbox",
+      "Hyper-V Replica",
+      "Credential Guard"
+    ],
+    "answer": "Windows Subsystem for Linux",
+    "explanation": "WSL provides a lightweight compatibility layer for Linux distributions, letting developers use bash, package managers, and CLI tools alongside Windows apps.",
+    "tags": [
+      "windows",
+      "productivity",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "After migrating an intranet site to a new IP, one Windows laptop still reaches the old address while every other device resolves correctly. Which command clears the stale cached record on that client?",
+    "choices": [
+      "ipconfig /flushdns",
+      "arp -d",
+      "gpupdate /force",
+      "nbtstat -n"
+    ],
+    "answer": "ipconfig /flushdns",
+    "explanation": "ipconfig /flushdns purges the local resolver cache so the workstation queries DNS again and learns the updated address.",
+    "tags": [
+      "windows",
+      "networking",
+      "220-1202"
+    ]
   }
 ]

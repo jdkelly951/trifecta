@@ -1,20 +1,215 @@
 [
   {
     "question": "Which control blocks malicious macros by only allowing signed code execution?",
-    "choices": ["DAC", "Mandatory Access Control", "Application whitelisting", "NAC"],
+    "choices": [
+      "DAC",
+      "Mandatory Access Control",
+      "Application whitelisting",
+      "NAC"
+    ],
     "answer": "Application whitelisting",
     "explanation": "Whitelisting approves specific binaries or signed scripts, preventing unknown macro execution."
   },
   {
     "question": "A SOC spots command-and-control traffic over DNS. What technique is the attacker using?",
-    "choices": ["Watering hole", "DNS tunneling", "Wardriving", "MAC spoofing"],
+    "choices": [
+      "Watering hole",
+      "DNS tunneling",
+      "Wardriving",
+      "MAC spoofing"
+    ],
     "answer": "DNS tunneling",
     "explanation": "DNS tunneling encapsulates payloads inside queries/responses to bypass firewalls."
   },
   {
     "question": "Which framework focuses on detecting, responding, and recovering from incidents in five core functions?",
-    "choices": ["ISO 27001", "NIST CSF", "COBIT", "PCI DSS"],
+    "choices": [
+      "ISO 27001",
+      "NIST CSF",
+      "COBIT",
+      "PCI DSS"
+    ],
     "answer": "NIST CSF",
     "explanation": "Identify, Protect, Detect, Respond, Recover are the pillars of the NIST Cybersecurity Framework."
+  },
+  {
+    "question": "Management wants a low-impact assessment that logs in with admin credentials to find missing patches but never exploits the findings. What should you schedule?",
+    "choices": [
+      "Credentialed vulnerability scan",
+      "External penetration test",
+      "Bug bounty program",
+      "Tabletop exercise"
+    ],
+    "answer": "Credentialed vulnerability scan",
+    "explanation": "A credentialed scan authenticates to hosts so it can compare patch levels and configurations safely without actively exploiting weaknesses like a penetration test would.",
+    "tags": [
+      "assessment",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which architecture enforces a 'never trust, always verify' model by authenticating every session before granting access to a microsegment?",
+    "choices": [
+      "Zero Trust Network Access",
+      "Client VPN tunnel",
+      "Split-horizon DNS",
+      "Security through obscurity"
+    ],
+    "answer": "Zero Trust Network Access",
+    "explanation": "ZTNA continuously validates user identity, device posture, and context before allowing access to an application segment, aligning with modern zero-trust principles.",
+    "tags": [
+      "architecture",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Implementing a Local Administrator Password Solution (LAPS) primarily helps mitigate which attack technique?",
+    "choices": [
+      "Pass-the-hash lateral movement",
+      "SQL injection",
+      "RF jamming",
+      "Watering-hole attack"
+    ],
+    "answer": "Pass-the-hash lateral movement",
+    "explanation": "LAPS randomizes each endpoint's local admin password, so captured hashes cannot be reused on other systems, disrupting pass-the-hash campaigns.",
+    "tags": [
+      "identity",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which security device stores and protects certificate authority private keys inside tamper-resistant hardware?",
+    "choices": [
+      "Hardware security module",
+      "Trusted Platform Module",
+      "Secure Access Service Edge",
+      "Content delivery network"
+    ],
+    "answer": "Hardware security module",
+    "explanation": "An HSM is a dedicated appliance for key generation and protection, providing physical safeguards, secure storage, and cryptographic acceleration for PKI operations.",
+    "tags": [
+      "cryptography",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which framework catalogs adversary tactics, techniques, and procedures so defenders can map detections to each phase of an intrusion?",
+    "choices": [
+      "MITRE ATT&CK",
+      "ISO 27701",
+      "PCI DSS",
+      "NIST CSF"
+    ],
+    "answer": "MITRE ATT&CK",
+    "explanation": "MITRE's ATT&CK matrix enumerates tactics and techniques observed in the wild, giving SOC teams a common language for detection coverage.",
+    "tags": [
+      "threat-intel",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Security awareness training that teaches staff how to spot spear-phishing is an example of which control type?",
+    "choices": [
+      "Administrative preventive control",
+      "Technical detective control",
+      "Physical compensating control",
+      "Corrective technical control"
+    ],
+    "answer": "Administrative preventive control",
+    "explanation": "Policies, procedures, and training are administrative controls, and educating users ahead of time is preventive because it seeks to stop incidents before they occur.",
+    "tags": [
+      "governance",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "An organization wants to enforce data loss prevention policies for Salesforce traffic even when users connect from home. Which technology should they deploy?",
+    "choices": [
+      "Cloud access security broker",
+      "Network tap",
+      "SSL accelerator",
+      "Forward proxy PAC file"
+    ],
+    "answer": "Cloud access security broker",
+    "explanation": "A CASB sits between users and SaaS apps (or plugs in via API) to apply DLP, threat protection, and compliance controls regardless of network location.",
+    "tags": [
+      "cloud",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Under the shared responsibility model, which task remains with the customer when using an Infrastructure-as-a-Service platform?",
+    "choices": [
+      "Hardening and patching the guest operating system",
+      "Maintaining data center physical security",
+      "Replacing failed hypervisor hardware",
+      "Providing redundant utility power"
+    ],
+    "answer": "Hardening and patching the guest operating system",
+    "explanation": "With IaaS the provider secures the physical layer and hypervisor, but the customer still manages their VMs, including OS patches, configs, and data.",
+    "tags": [
+      "cloud",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which platform automates incident response by orchestrating playbooks, enriching alerts, and triggering containment actions across security tools?",
+    "choices": [
+      "SOAR",
+      "EDR",
+      "UEBA",
+      "SIEM"
+    ],
+    "answer": "SOAR",
+    "explanation": "Security Orchestration, Automation, and Response solutions tie into SIEM alerts and other feeds, then run scripted workflows to investigate and contain threats faster.",
+    "tags": [
+      "operations",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which algorithm is purpose-built for key stretching so that brute-force attacks against passwords take significantly longer?",
+    "choices": [
+      "PBKDF2",
+      "SHA-1",
+      "MD5",
+      "CRC32"
+    ],
+    "answer": "PBKDF2",
+    "explanation": "PBKDF2 applies a pseudorandom function thousands of times with a salt, producing derived keys that dramatically slow offline cracking attempts.",
+    "tags": [
+      "cryptography",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "According to the NIST 800-61 incident-response lifecycle, which phase comes immediately after containment?",
+    "choices": [
+      "Eradication and recovery",
+      "Preparation",
+      "Lessons learned",
+      "Identification"
+    ],
+    "answer": "Eradication and recovery",
+    "explanation": "Once an incident is contained, responders remove the malware/backdoors (eradication) and restore systems to production (recovery) before moving to post-incident analysis.",
+    "tags": [
+      "incident-response",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "To prevent sensitive research data from being copied to USB flash drives, which control should you implement on managed endpoints?",
+    "choices": [
+      "Endpoint DLP with removable media blocking",
+      "Port mirroring",
+      "Faraday cage",
+      "Network load balancer"
+    ],
+    "answer": "Endpoint DLP with removable media blocking",
+    "explanation": "Device control/endpoint DLP agents can enforce policies that block or log writes to USB mass-storage devices, reducing the risk of data exfiltration.",
+    "tags": [
+      "data-protection",
+      "SY0-701"
+    ]
   }
 ]

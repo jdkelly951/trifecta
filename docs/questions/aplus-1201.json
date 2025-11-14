@@ -1,107 +1,319 @@
 [
   {
     "question": "Which wireless standard first introduced MU-MIMO for consumer devices?",
-    "choices": ["802.11n", "802.11ac", "802.11g", "802.11ax"],
+    "choices": [
+      "802.11n",
+      "802.11ac",
+      "802.11g",
+      "802.11ax"
+    ],
     "answer": "802.11ac",
     "explanation": "Wave 2 802.11ac access points added multi-user MIMO so multiple clients can talk at the same time.",
-    "tags": ["wireless", "220-1201"]
+    "tags": [
+      "wireless",
+      "220-1201"
+    ]
   },
   {
     "question": "A user notes their laptop screen is unreadable outdoors. Which hardware upgrade helps most?",
-    "choices": ["Install more RAM", "Replace the CMOS battery", "Swap to an IPS panel with higher nits", "Enable virtualization in BIOS"],
+    "choices": [
+      "Install more RAM",
+      "Replace the CMOS battery",
+      "Swap to an IPS panel with higher nits",
+      "Enable virtualization in BIOS"
+    ],
     "answer": "Swap to an IPS panel with higher nits",
     "explanation": "High-brightness IPS displays improve color accuracy and outdoor visibility.",
-    "tags": ["mobile", "display", "220-1201"]
+    "tags": [
+      "mobile",
+      "display",
+      "220-1201"
+    ]
   },
   {
     "question": "Which cloud model delivers full applications over the internet without local installs?",
-    "choices": ["IaaS", "Notebooks", "PaaS", "SaaS"],
+    "choices": [
+      "IaaS",
+      "Notebooks",
+      "PaaS",
+      "SaaS"
+    ],
     "answer": "SaaS",
     "explanation": "Software as a Service hosts complete applications so users only need a browser.",
-    "tags": ["cloud", "services", "220-1201"]
+    "tags": [
+      "cloud",
+      "services",
+      "220-1201"
+    ]
   },
   {
     "question": "A coworking space wants each access point to keep latency low while dozens of laptops share the channel. Which 802.11 amendment introduced OFDMA so the AP can slice one transmission into multiple resource units?",
-    "choices": ["802.11n", "802.11ac Wave 2", "802.11ax", "802.11ad"],
+    "choices": [
+      "802.11n",
+      "802.11ac Wave 2",
+      "802.11ax",
+      "802.11ad"
+    ],
     "answer": "802.11ax",
     "explanation": "Wi-Fi 6 (802.11ax) adds OFDMA and uplink scheduling so many clients can transmit simultaneously instead of waiting for whole-channel access.",
-    "tags": ["wireless", "networking", "220-1201"]
+    "tags": [
+      "wireless",
+      "networking",
+      "220-1201"
+    ]
   },
   {
     "question": "A desktop's only free expansion slot is PCIe 3.0 x4. To add an NVMe SSD without throttling, which accessory should you install?",
-    "choices": ["USB 3.0 M.2 enclosure", "PCIe x4 to M.2 NVMe adapter card", "SATA III to M.2 converter", "Thunderbolt 3 dock"],
+    "choices": [
+      "USB 3.0 M.2 enclosure",
+      "PCIe x4 to M.2 NVMe adapter card",
+      "SATA III to M.2 converter",
+      "Thunderbolt 3 dock"
+    ],
     "answer": "PCIe x4 to M.2 NVMe adapter card",
     "explanation": "An adapter that plugs into the PCIe slot exposes the NVMe drive's native PCIe lanes, preserving full throughput.",
-    "tags": ["storage", "hardware", "220-1201"]
+    "tags": [
+      "storage",
+      "hardware",
+      "220-1201"
+    ]
   },
   {
     "question": "A video team wants one drive of fault tolerance with the most usable capacity across four disks. Which RAID level meets that goal?",
-    "choices": ["RAID 0", "RAID 1", "RAID 5", "RAID 10"],
+    "choices": [
+      "RAID 0",
+      "RAID 1",
+      "RAID 5",
+      "RAID 10"
+    ],
     "answer": "RAID 5",
     "explanation": "RAID 5 stripes data with distributed parity, so any single failed disk can be rebuilt while retaining most capacity.",
-    "tags": ["storage", "220-1201"]
+    "tags": [
+      "storage",
+      "220-1201"
+    ]
   },
   {
     "question": "Before running a Type 2 hypervisor on Windows 11, which UEFI option must be enabled to let the host expose nested page tables to guests?",
-    "choices": ["Secure Boot", "Intel VT-x/AMD-V", "PXE Boot", "TPM 2.0"],
+    "choices": [
+      "Secure Boot",
+      "Intel VT-x/AMD-V",
+      "PXE Boot",
+      "TPM 2.0"
+    ],
     "answer": "Intel VT-x/AMD-V",
     "explanation": "Hardware virtualization extensions (Intel VT-x or AMD-V) provide the CPU assist desktop hypervisors rely on for 64-bit guests.",
-    "tags": ["virtualization", "220-1201"]
+    "tags": [
+      "virtualization",
+      "220-1201"
+    ]
   },
   {
     "question": "A presenter wants to mirror a USB-C laptop to an HDMI projector while powering the laptop through the same port. Which accessory satisfies both requirements?",
-    "choices": ["USB-C hub with DisplayPort Alt Mode and 100W Power Delivery", "USB-A to HDMI adapter", "Passive USB-C to USB-A cable", "Bluetooth display adapter"],
+    "choices": [
+      "USB-C hub with DisplayPort Alt Mode and 100W Power Delivery",
+      "USB-A to HDMI adapter",
+      "Passive USB-C to USB-A cable",
+      "Bluetooth display adapter"
+    ],
     "answer": "USB-C hub with DisplayPort Alt Mode and 100W Power Delivery",
     "explanation": "A USB-C hub or dock that supports DP Alt Mode for video passthrough and Power Delivery passthrough can output HDMI while charging.",
-    "tags": ["mobile", "video", "220-1201"]
+    "tags": [
+      "mobile",
+      "video",
+      "220-1201"
+    ]
   },
   {
     "question": "You must run 10 GbE over copper for 80 meters in a ceiling space with fluorescent ballasts. Which cable rating is most appropriate?",
-    "choices": ["Cat 5e UTP", "Cat 6 UTP", "Cat 6a shielded", "RG-6 coax"],
+    "choices": [
+      "Cat 5e UTP",
+      "Cat 6 UTP",
+      "Cat 6a shielded",
+      "RG-6 coax"
+    ],
     "answer": "Cat 6a shielded",
     "explanation": "10GBASE-T links that approach 100 meters should use Cat6a, and shielding helps reject EMI from lighting ballasts.",
-    "tags": ["networking", "cabling", "220-1201"]
+    "tags": [
+      "networking",
+      "cabling",
+      "220-1201"
+    ]
   },
   {
     "question": "Battery-powered environmental sensors need the best wall penetration and longest range at modest throughput. Which band should you assign on the dual-band access point?",
-    "choices": ["2.4 GHz", "5 GHz", "6 GHz", "60 GHz"],
+    "choices": [
+      "2.4 GHz",
+      "5 GHz",
+      "6 GHz",
+      "60 GHz"
+    ],
     "answer": "2.4 GHz",
     "explanation": "2.4 GHz signals travel farther and better penetrate walls, which suits low-bandwidth IoT sensors.",
-    "tags": ["wireless", "IoT", "220-1201"]
+    "tags": [
+      "wireless",
+      "IoT",
+      "220-1201"
+    ]
   },
   {
     "question": "During laser printer maintenance, which component is responsible for placing a uniform electrostatic charge on the photosensitive drum before each page is written?",
-    "choices": ["Transfer belt", "Registration roller", "Primary charge roller", "Fuser assembly"],
+    "choices": [
+      "Transfer belt",
+      "Registration roller",
+      "Primary charge roller",
+      "Fuser assembly"
+    ],
     "answer": "Primary charge roller",
     "explanation": "The primary charge roller (or corona assembly) prepares the drum with a consistent charge prior to laser exposure.",
-    "tags": ["printers", "hardware", "220-1201"]
+    "tags": [
+      "printers",
+      "hardware",
+      "220-1201"
+    ]
   },
   {
     "question": "After installing new RAM, a desktop powers on but emits continuous long beeps and never displays video. What is the best first step?",
-    "choices": ["Clear the CMOS settings", "Reseat the memory modules until the latches click", "Replace the power supply immediately", "Flash the BIOS to the newest version"],
+    "choices": [
+      "Clear the CMOS settings",
+      "Reseat the memory modules until the latches click",
+      "Replace the power supply immediately",
+      "Flash the BIOS to the newest version"
+    ],
     "answer": "Reseat the memory modules until the latches click",
     "explanation": "Long repeating beeps typically mean RAM is not detected; reseating or reordering DIMMs resolves the majority of post-upgrade boot failures.",
-    "tags": ["troubleshooting", "hardware", "220-1201"]
+    "tags": [
+      "troubleshooting",
+      "hardware",
+      "220-1201"
+    ]
   },
   {
     "question": "Which motherboard power connector supplies dedicated +12 volt rails for a high-core-count CPU?",
-    "choices": ["SATA power connector", "4/8-pin EPS12V connector", "PCIe 6-pin connector", "24-pin ATX connector"],
+    "choices": [
+      "SATA power connector",
+      "4/8-pin EPS12V connector",
+      "PCIe 6-pin connector",
+      "24-pin ATX connector"
+    ],
     "answer": "4/8-pin EPS12V connector",
     "explanation": "The EPS12V connector, usually 8 pins near the CPU socket, feeds the VRMs with stable 12 volt power separate from the main 24-pin plug.",
-    "tags": ["power", "hardware", "220-1201"]
+    "tags": [
+      "power",
+      "hardware",
+      "220-1201"
+    ]
   },
   {
     "question": "A small business needs outside contractors to reach an internal HTTPS knowledge base hosted at 192.168.1.50. What router feature should you configure so requests to the public IP on TCP 443 reach that server?",
-    "choices": ["Port forwarding rule", "Quality of Service policy", "UPnP", "Client isolation"],
+    "choices": [
+      "Port forwarding rule",
+      "Quality of Service policy",
+      "UPnP",
+      "Client isolation"
+    ],
     "answer": "Port forwarding rule",
     "explanation": "Port forwarding maps inbound traffic on a specific public port to a private address and port within the NATed network.",
-    "tags": ["networking", "security", "220-1201"]
+    "tags": [
+      "networking",
+      "security",
+      "220-1201"
+    ]
   },
   {
     "question": "Why do premium smartphones increasingly use AMOLED displays instead of IPS LCDs?",
-    "choices": ["AMOLED panels require CCFL inverters for higher brightness", "AMOLED pixels turn completely off for darker blacks and lower power draw", "IPS panels are the only displays with high refresh rates", "AMOLED needs a separate backlight layer"],
+    "choices": [
+      "AMOLED panels require CCFL inverters for higher brightness",
+      "AMOLED pixels turn completely off for darker blacks and lower power draw",
+      "IPS panels are the only displays with high refresh rates",
+      "AMOLED needs a separate backlight layer"
+    ],
     "answer": "AMOLED pixels turn completely off for darker blacks and lower power draw",
     "explanation": "Each AMOLED pixel is emissive, so dark UI elements shut the pixel off entirely, improving contrast and extending battery life compared to always-on backlights.",
-    "tags": ["mobile", "display", "220-1201"]
+    "tags": [
+      "mobile",
+      "display",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A tablet's LCD still shows a clear image, but touch input is erratic or unresponsive after a drop. Which component should you replace first?",
+    "choices": [
+      "LCD inverter board",
+      "Digitizer",
+      "Wi-Fi antenna",
+      "Gyroscope module"
+    ],
+    "answer": "Digitizer",
+    "explanation": "The digitizer is the touch-sensitive layer bonded to the glass. If the display looks fine yet touches fail, replacing the digitizer Assembly resolves the issue.",
+    "tags": [
+      "mobile",
+      "repair",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "You are deploying three 2.4 GHz access points in an open office. Which non-overlapping channel plan minimizes co-channel interference?",
+    "choices": [
+      "Channels 1, 6, and 11",
+      "Channels 2, 7, and 12",
+      "Channels 3, 6, and 9",
+      "Channels 4, 8, and 13"
+    ],
+    "answer": "Channels 1, 6, and 11",
+    "explanation": "In the 2.4 GHz band, channels 1, 6, and 11 are the only non-overlapping set used in North America, so spacing APs on those channels keeps their 20 MHz signals from stacking on top of each other.",
+    "tags": [
+      "wireless",
+      "networking",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A motherboard manual labels one slot as 'M.2 Socket 3 (M Key) PCIe x4'. Which storage device takes full advantage of that connector?",
+    "choices": [
+      "M.2 2280 NVMe SSD",
+      "mSATA mini card",
+      "M.2 B-key SATA SSD",
+      "2.5-inch U.2 enterprise SSD"
+    ],
+    "answer": "M.2 2280 NVMe SSD",
+    "explanation": "A Socket 3, M-keyed slot exposes four PCIe lanes for NVMe drives the common 2280 form factor, so installing an NVMe stick yields the advertised bandwidth.",
+    "tags": [
+      "storage",
+      "hardware",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "To reduce the attack surface on a virtualization host, you need a platform that runs directly on the server hardware without a general-purpose host OS. Which option meets that requirement?",
+    "choices": [
+      "Type 1 hypervisor",
+      "Type 2 hypervisor",
+      "Desktop-as-a-Service subscription",
+      "Application virtualization agent"
+    ],
+    "answer": "Type 1 hypervisor",
+    "explanation": "Type 1 (bare-metal) hypervisors such as Hyper-V Server, ESXi, or Proxmox install directly on hardware so there is no underlying desktop OS to patch or expose to attackers.",
+    "tags": [
+      "virtualization",
+      "cloud",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "While tracing a dead printer drop in an unlabeled closet, which tool helps you locate the matching patch-panel port for that wall jack?",
+    "choices": [
+      "Tone generator and probe",
+      "Cable certifier running autotest",
+      "Loopback plug",
+      "Optical power meter"
+    ],
+    "answer": "Tone generator and probe",
+    "explanation": "A toner kit injects an audible signal on the copper pair so you can sweep the patch panel with the probe and quickly find the correct port to re-terminate.",
+    "tags": [
+      "troubleshooting",
+      "cabling",
+      "220-1201"
+    ]
   }
 ]
