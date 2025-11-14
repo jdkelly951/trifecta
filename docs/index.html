@@ -20,12 +20,19 @@
         <p>Offline-friendly CompTIA prep</p>
       </div>
     </div>
-    <nav class="primary-nav" aria-label="Primary">
-      <button class="nav-link active" data-target="dashboard">Dashboard</button>
-      <button class="nav-link" data-target="flashcards">Flashcards</button>
-      <button class="nav-link" data-target="quizzes">Quizzes</button>
-      <button class="nav-link" data-target="pbqs">PBQs</button>
-    </nav>
+    <div class="header-controls">
+      <nav class="primary-nav" aria-label="Primary">
+        <button class="nav-link active" data-target="dashboard">Dashboard</button>
+        <button class="nav-link" data-target="flashcards">Flashcards</button>
+        <button class="nav-link" data-target="quizzes">Quizzes</button>
+        <button class="nav-link" data-target="pbqs">PBQs</button>
+      </nav>
+      <div class="account-actions">
+        <span class="account-badge" id="accountBadge" aria-live="polite">Free tier</span>
+        <button class="ghost subtle-button" id="authButton" type="button">Sign in</button>
+        <button class="primary" id="headerUpgradeButton" data-upgrade="true" data-upgrade-label="Upgrade to Pro" data-upgrade-thanks="Pro active">Upgrade to Pro</button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -75,9 +82,15 @@
             <p class="eyebrow">Track confidence</p>
             <h3>Quick stats</h3>
           </div>
-          <ul id="progressList" class="progress-list">
-            <li>No study data yet. Rate some cards or finish a quiz!</li>
-          </ul>
+          <div class="analytics-stack">
+            <ul id="questionSummary" class="progress-list">
+              <li>Loading question counts…</li>
+            </ul>
+            <div class="weak-tag-summary" id="weakTagSummary">
+              <p class="eyebrow">Adaptive focus</p>
+              <p id="weakTagCopy">Complete a quiz to see your weakest domains.</p>
+            </div>
+          </div>
         </article>
       </div>
       <div id="trackCards" class="track-grid" aria-live="polite"></div>
@@ -140,6 +153,10 @@
           <button id="nextQuestion" class="ghost" disabled>Next question</button>
         </div>
         <div class="stats" id="quizStats">Scoreboard will appear here.</div>
+        <div class="adaptive-tools">
+          <p class="adaptive-note" id="quizFocusHint" role="status" aria-live="polite">Adaptive focus: build a baseline to unlock targeted quizzes.</p>
+          <button class="ghost subtle-button" type="button" id="resetAdaptiveButton">Reset adaptive data</button>
+        </div>
       </div>
     </section>
 
@@ -168,6 +185,17 @@
         </div>
       </header>
 
+      <div class="upgrade-banner" id="pbqLockNotice" role="status" hidden>
+        <div>
+          <p class="eyebrow">Pro feature</p>
+          <h3>Unlock the full PBQ lab</h3>
+          <p>Free tier includes <strong><span id="pbqLimitCount">3</span> PBQs</strong>. Upgrade to access <span id="pbqLockedCount">0</span> more scenarios plus future labs.</p>
+        </div>
+        <div class="upgrade-banner-actions">
+          <button class="primary" data-upgrade="true" data-upgrade-label="Unlock PBQ lab" data-upgrade-thanks="Pro unlocked">Unlock PBQ lab</button>
+        </div>
+      </div>
+
       <div class="pbq-area" aria-live="polite">
         <article class="pbq-card" id="pbqCard">
           <p class="eyebrow" id="pbqSource"></p>
@@ -181,10 +209,11 @@
   </main>
 
   <footer class="app-footer">
-    <small>Built as a lightweight study site. Add new tracks by dropping JSON files into <code>/questions</code>.</small>
+    <small>Science-backed CompTIA drills by Trifecta. Add custom packs by dropping JSON files into <code>docs/questions</code>.</small>
     <span id="versionTag" class="version-tag" aria-live="polite"></span>
   </footer>
 
+  <script src="firebase-config.js" defer></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

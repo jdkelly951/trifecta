@@ -1,3 +1,11 @@
+import {
+  bootstrapFirebase,
+  subscribeToAuthChanges,
+  signInWithGoogle,
+  signOutUser,
+  fetchEntitlement as fetchRemoteEntitlement,
+} from './firebase-client.js';
+
 const TRACKS = {
   'aplus-1201': {
     title: 'CompTIA A+ 220-1201',
@@ -23,6 +31,9 @@ const TRACKS = {
 
 const BUILD_VERSION = 'v2025-11-13h2';
 const PBQ_FILE = 'questions/aplus-pbq.json';
+const ENTITLEMENT_KEY = 'cert-study-suite::entitlement';
+const FREE_PBQ_LIMIT = 3;
+const UPGRADE_URL = 'https://trifecta.study/pro';
 
 const STORAGE_KEYS = {
   flashcards: 'cert-study-suite::flashcards',
@@ -30,9 +41,20 @@ const STORAGE_KEYS = {
   session: 'cert-study-suite::session'
 };
 const ONBOARDING_KEY = 'cert-study-suite::onboarding-v1';
+const QUIZ_TAG_KEY = 'cert-study-suite::quiz-tags';
 
 const state = {
   cache: {},
+  user: {
+    profile: null,
+    entitlements: { local: false, remote: null },
+    authReady: false,
+    authSupported: false,
+  },
+  analytics: {
+    questionsPerTrack: {},
+    lastRefreshed: null,
+  },
   flashcards: {
     track: null,
     queue: [],
@@ -45,11 +67,13 @@ const state = {
     questions: [],
     currentIndex: 0,
     score: 0,
-    answered: false
+    answered: false,
+    focusTags: []
   },
   pbq: {
     loaded: false,
     questions: [],
+    allQuestions: [],
     currentIndex: 0,
     answers: {}
   }
@@ -66,6 +90,8 @@ let autoResumeHandled = false;
 document.addEventListener('DOMContentLoaded', async () => {
   initNavigation();
   populateTrackSelects();
+  initEntitlementStatus();
+  await initAuthIntegration();
   bindFlashcardControls();
   bindQuizControls();
   bindPbqControls().catch((error) => console.warn('PBQ init failed', error));
@@ -77,6 +103,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initVersionTag();
   initStorageSync();
   initHeroShortcuts();
+  registerServiceWorker();
+  registerUpgradeCtas();
+  bindAuthControls();
   maybeRunOnboarding();
   autoResumeSession();
 });
@@ -90,6 +119,19 @@ function initVersionTag() {
 function initStorageSync() {
   window.addEventListener('storage', (event) => {
     if (!event.key) return;
+    if (event.key === ENTITLEMENT_KEY) {
+      state.user.entitlements.local = event.newValue === 'pro';
+      handleEntitlementUpdate();
+      return;
+    }
+    if (event.key === QUIZ_TAG_KEY) {
+      if (state.quiz.track) {
+        state.quiz.focusTags = deriveFocusTags(getQuizTagStats(state.quiz.track));
+        updateQuizFocusHint(state.quiz.focusTags);
+      }
+      handleEntitlementUpdate();
+      return;
+    }
     if ([STORAGE_KEYS.flashcards, STORAGE_KEYS.quiz, STORAGE_KEYS.session].includes(event.key)) {
       renderDashboardOverview();
       updateTrackMetrics();
@@ -118,6 +160,218 @@ function initNavigation() {
       handleTrackShortcut(btn.dataset.target, btn.dataset.track);
     });
   });
+}
+
+async function initAuthIntegration() {
+  const config = window.FIREBASE_CONFIG;
+  if (!config) {
+    state.user.authSupported = false;
+    state.user.authReady = true;
+    updateAuthControls();
+    return;
+  }
+  try {
+    await bootstrapFirebase(config);
+    state.user.authSupported = true;
+    subscribeToAuthChanges(async (account) => {
+      state.user.profile = account
+        ? {
+            uid: account.uid,
+            displayName: account.displayName || account.email || 'Learner',
+            email: account.email || null,
+          }
+        : null;
+      if (!account) {
+        state.user.entitlements.remote = null;
+        handleEntitlementUpdate();
+        updateAccountBadge();
+        return;
+      }
+      try {
+        const data = await fetchRemoteEntitlement(account.uid);
+        state.user.entitlements.remote = parseRemoteEntitlement(data);
+      } catch (error) {
+        console.warn('Failed to load entitlement', error);
+        state.user.entitlements.remote = null;
+      }
+      handleEntitlementUpdate();
+      updateAccountBadge();
+    });
+  } catch (error) {
+    console.warn('Auth init failed', error);
+    state.user.authSupported = false;
+  } finally {
+    state.user.authReady = true;
+    updateAuthControls();
+  }
+}
+
+function parseRemoteEntitlement(data) {
+  if (!data) return null;
+  const tier = (data.tier || data.plan || '').toString().toLowerCase();
+  return tier === 'pro';
+}
+
+function bindAuthControls() {
+  document.getElementById('authButton')?.addEventListener('click', handleAuthButton);
+}
+
+async function handleAuthButton() {
+  if (!state.user.authSupported) {
+    window.alert('Connect Firebase to enable sign in. See README.md → Adaptive quizzes.');
+    return;
+  }
+  if (!state.user.profile) {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.warn('Sign-in failed', error);
+      window.alert('Sign-in failed. Check console for details.');
+    }
+    updateAuthControls();
+    return;
+  }
+  try {
+    await signOutUser();
+  } catch (error) {
+    console.warn('Sign-out failed', error);
+  }
+  updateAuthControls();
+}
+
+function updateAuthControls() {
+  const button = document.getElementById('authButton');
+  if (!button) return;
+  if (!state.user.authSupported) {
+    button.textContent = 'Setup sync';
+    button.disabled = false;
+    button.title = 'Add Firebase config to enable sign in';
+    return;
+  }
+  if (!state.user.authReady) {
+    button.textContent = 'Checking…';
+    button.disabled = true;
+    button.title = '';
+    return;
+  }
+  button.disabled = false;
+  button.title = state.user.profile ? 'Sign out of your study profile' : 'Sign in to sync progress';
+  button.textContent = state.user.profile ? 'Sign out' : 'Sign in';
+}
+
+function initEntitlementStatus() {
+  state.user.entitlements.local = localStorage.getItem(ENTITLEMENT_KEY) === 'pro';
+  handleEntitlementUpdate();
+}
+
+function setLocalEntitlement(isPro) {
+  state.user.entitlements.local = Boolean(isPro);
+  if (isPro) {
+    localStorage.setItem(ENTITLEMENT_KEY, 'pro');
+  } else {
+    localStorage.removeItem(ENTITLEMENT_KEY);
+  }
+}
+
+function handleEntitlementUpdate() {
+  updateAccountBadge();
+  if (state.pbq.loaded) {
+    applyPbqAccessRules();
+    populatePbqSelect();
+    renderPbq();
+  } else {
+    updatePbqLockNotice(state.pbq.allQuestions.length, state.pbq.questions.length);
+  }
+}
+
+function updateAccountBadge() {
+  const badge = document.getElementById('accountBadge');
+  if (badge) {
+    const tierLabel = isProUser() ? 'Pro tier' : 'Free tier';
+    const name = state.user.profile?.displayName;
+    badge.textContent = name ? `${tierLabel} • ${name}` : tierLabel;
+    badge.classList.toggle('pro', isProUser());
+  }
+
+  document.querySelectorAll('[data-upgrade="true"]').forEach((button) => {
+    const { upgradeLabel, upgradeThanks } = button.dataset;
+    if (isProUser()) {
+      button.textContent = upgradeThanks || 'Pro unlocked';
+      button.disabled = true;
+    } else {
+      button.textContent = upgradeLabel || 'Upgrade';
+      button.disabled = false;
+    }
+  });
+
+  updateAuthControls();
+}
+
+function isProUser() {
+  if (state.user?.entitlements?.remote !== null && state.user?.entitlements?.remote !== undefined) {
+    return Boolean(state.user.entitlements.remote);
+  }
+  return Boolean(state.user?.entitlements?.local);
+}
+
+function registerUpgradeCtas() {
+  document.querySelectorAll('[data-upgrade="true"]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      handleUpgradeClick();
+    });
+  });
+}
+
+function handleUpgradeClick() {
+  if (isProUser()) {
+    showProBadgeCelebration();
+    return;
+  }
+  if (state.user.authSupported && !state.user.profile) {
+    handleAuthButton();
+    return;
+  }
+  if (UPGRADE_URL && UPGRADE_URL.startsWith('http')) {
+    window.open(UPGRADE_URL, '_blank', 'noopener');
+    return;
+  }
+  activateView('pbqs');
+  highlightUpgradeBanner();
+}
+
+function highlightUpgradeBanner() {
+  const banner = document.getElementById('pbqLockNotice');
+  if (!banner) return;
+  banner.hidden = false;
+  banner.classList.add('pulse');
+  banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => banner.classList.remove('pulse'), 1600);
+}
+
+function showProBadgeCelebration() {
+  const badge = document.getElementById('accountBadge');
+  if (!badge) return;
+  badge.classList.add('pulse');
+  setTimeout(() => badge.classList.remove('pulse'), 1200);
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((error) => {
+      console.warn('Service worker registration failed', error);
+    });
+  });
+}
+
+if (typeof window !== 'undefined') {
+  window.certStudySuiteSetTier = (tier = 'free') => {
+    setLocalEntitlement(tier === 'pro');
+    handleEntitlementUpdate();
+  };
 }
 
 function activateView(target) {
@@ -181,7 +435,8 @@ function populateTrackSelects() {
 
 function renderDashboardOverview() {
   updateSessionCard();
-  updateProgressList();
+  updateQuestionSummary();
+  updateWeakTagSummary();
   updateHeroBanner();
   updateTrackHint();
 }
@@ -230,22 +485,48 @@ function updateSessionCard() {
   }
 }
 
-function updateProgressList() {
-  const list = document.getElementById('progressList');
+function updateQuestionSummary() {
+  const list = document.getElementById('questionSummary');
   if (!list) return;
+  const counts = state.analytics.questionsPerTrack;
+  if (!counts || !Object.keys(counts).length) {
+    list.innerHTML = '<li>Loading question counts…</li>';
+    return;
+  }
 
   list.innerHTML = '';
   Object.entries(TRACKS).forEach(([key, track]) => {
-    const item = document.createElement('li');
-    item.innerHTML = `
-      <div>
-        <p class="progress-track">${track.title}</p>
-        <p>${getFlashcardSummary(key)}</p>
-      </div>
-      <p class="progress-score">${getQuizSummary(key)}</p>
-    `;
-    list.appendChild(item);
+    const li = document.createElement('li');
+    const count = counts[key] ?? '—';
+    li.innerHTML = `<strong>${track.title}</strong> • ${count} questions`;
+    list.appendChild(li);
   });
+
+  const pbqCount = state.pbq.allQuestions?.length || state.pbq.questions?.length || 0;
+  const pbqLi = document.createElement('li');
+  pbqLi.innerHTML = `<strong>PBQ Lab</strong> • ${pbqCount} scenarios`;
+  list.appendChild(pbqLi);
+
+  if (state.analytics.lastRefreshed) {
+    const stamp = document.createElement('li');
+    stamp.className = 'muted';
+    stamp.textContent = `Counts refreshed ${formatRelativeTime(state.analytics.lastRefreshed)}.`;
+    list.appendChild(stamp);
+  }
+}
+
+function updateWeakTagSummary() {
+  const copy = document.getElementById('weakTagCopy');
+  if (!copy) return;
+  const summary = getGlobalWeakTagSummary();
+  if (!summary.length) {
+    copy.textContent = 'Complete a quiz to see your weakest domains.';
+    return;
+  }
+  const parts = summary.map(
+    ({ tag, track }) => `${formatTagLabel(tag)} (${TRACKS[track]?.title || track})`
+  );
+  copy.innerHTML = `Focus on: <strong>${parts.join(', ')}</strong>`;
 }
 
 function getSessionInfo() {
@@ -461,10 +742,16 @@ async function renderDashboard() {
       container.appendChild(card);
     });
 
+    state.analytics.questionsPerTrack = Object.fromEntries(
+      entries.map(({ key, questions }) => [key, questions.length])
+    );
+    state.analytics.lastRefreshed = new Date().toISOString();
+
     container.querySelectorAll('button').forEach((button) => {
       button.addEventListener('click', () => handleTrackShortcut(button.dataset.target, button.dataset.track));
     });
     updateTrackMetrics();
+    updateQuestionSummary();
   } catch (err) {
     container.innerHTML = `<p>Unable to load track data. ${err.message}</p>`;
   }
@@ -661,6 +948,9 @@ function bindQuizControls() {
       startQuiz(track);
     } else {
       setTrackChip('quiz');
+      state.quiz.track = null;
+      state.quiz.focusTags = [];
+      updateQuizFocusHint([]);
     }
   });
 
@@ -680,25 +970,30 @@ function bindQuizControls() {
       finishQuiz();
     }
   });
+
+  document.getElementById('resetAdaptiveButton')?.addEventListener('click', resetAdaptiveStats);
 }
 
 async function startQuiz(trackKey) {
   const meta = document.getElementById('quizMeta');
   meta.textContent = 'Loading questions…';
   const questions = await loadQuestionSet(trackKey);
+  const { questions: selectedQuestions, focusTags } = buildAdaptiveQuizQuestions(trackKey, questions);
 
   state.quiz = {
     track: trackKey,
-    questions: shuffle([...questions]).slice(0, Math.min(questions.length, 20)),
+    questions: selectedQuestions,
     currentIndex: 0,
     score: 0,
-    answered: false
+    answered: false,
+    focusTags
   };
 
   recordSession('quizzes', trackKey);
   completeOnboarding();
   renderQuizQuestion();
   updateQuizStats();
+  updateQuizFocusHint(focusTags);
 }
 
 function renderQuizQuestion() {
@@ -760,6 +1055,9 @@ function handleQuizAnswer(choiceIndex) {
 
   document.getElementById('nextQuestion').disabled = false;
   updateQuizStats();
+  updateQuizTagStats(state.quiz.track, question.tags || [], isCorrect);
+  state.quiz.focusTags = deriveFocusTags(getQuizTagStats(state.quiz.track));
+  updateQuizFocusHint(state.quiz.focusTags);
 }
 
 function finishQuiz() {
@@ -776,6 +1074,8 @@ function finishQuiz() {
   updateTrackMetrics(state.quiz.track);
   recordSession('quizzes', state.quiz.track);
   updateQuizStats();
+  state.quiz.focusTags = deriveFocusTags(getQuizTagStats(state.quiz.track));
+  updateQuizFocusHint(state.quiz.focusTags);
 }
 
 function updateQuizStats() {
@@ -807,6 +1107,171 @@ async function loadQuestionSet(trackKey) {
   const data = await response.json();
   state.cache[trackKey] = Array.isArray(data) ? data : [];
   return state.cache[trackKey];
+}
+
+function buildAdaptiveQuizQuestions(trackKey, pool = []) {
+  if (!Array.isArray(pool) || !pool.length) {
+    return { questions: [], focusTags: [] };
+  }
+  const limit = Math.min(pool.length, 20);
+  const stats = getQuizTagStats(trackKey);
+  const weighted = pool.map((question) => ({
+    question,
+    weight: getQuestionWeight(question, stats),
+    random: Math.random()
+  }));
+  weighted.sort((a, b) => {
+    if (b.weight === a.weight) {
+      return b.random - a.random;
+    }
+    return b.weight - a.weight;
+  });
+  const selected = weighted.slice(0, limit).map((entry) => entry.question);
+  const focusTags = deriveFocusTags(stats, selected);
+  return { questions: selected, focusTags };
+}
+
+function getQuestionWeight(question, stats) {
+  const tags = Array.isArray(question.tags) ? question.tags : [];
+  if (!tags.length) return 1;
+  const weights = tags.map((tag) => 1 + getTagDeficiency(stats, tag));
+  return Math.max(...weights);
+}
+
+function getTagDeficiency(stats, tag) {
+  const entry = stats?.[tag];
+  if (!entry || !entry.attempts) {
+    return 0.6;
+  }
+  const accuracy = entry.correct / entry.attempts;
+  return Math.max(0, 1 - accuracy);
+}
+
+function getQuizTagStats(trackKey) {
+  if (!trackKey) return {};
+  try {
+    const stored = JSON.parse(localStorage.getItem(QUIZ_TAG_KEY) || '{}');
+    return stored[trackKey] || {};
+  } catch (error) {
+    console.warn('Unable to parse quiz stats', error);
+    return {};
+  }
+}
+
+function saveQuizTagStats(trackKey, stats) {
+  if (!trackKey) return;
+  const stored = JSON.parse(localStorage.getItem(QUIZ_TAG_KEY) || '{}');
+  stored[trackKey] = stats;
+  localStorage.setItem(QUIZ_TAG_KEY, JSON.stringify(stored));
+}
+
+function clearQuizTagStats(trackKey) {
+  if (!trackKey) {
+    localStorage.removeItem(QUIZ_TAG_KEY);
+    return;
+  }
+  const stored = JSON.parse(localStorage.getItem(QUIZ_TAG_KEY) || '{}');
+  if (stored[trackKey]) {
+    delete stored[trackKey];
+    localStorage.setItem(QUIZ_TAG_KEY, JSON.stringify(stored));
+  }
+}
+
+function updateQuizTagStats(trackKey, tags, isCorrect) {
+  if (!trackKey || !Array.isArray(tags) || !tags.length) return;
+  const stats = getQuizTagStats(trackKey);
+  tags.forEach((tag) => {
+    if (!tag) return;
+    const entry = stats[tag] || { attempts: 0, correct: 0 };
+    entry.attempts += 1;
+    if (isCorrect) {
+      entry.correct += 1;
+    }
+    stats[tag] = entry;
+  });
+  saveQuizTagStats(trackKey, stats);
+}
+
+function deriveFocusTags(stats, questions = []) {
+  const tagScores = new Map();
+  if (Array.isArray(questions)) {
+    questions.forEach((question) => {
+      (question.tags || []).forEach((tag) => {
+        const deficiency = getTagDeficiency(stats, tag);
+        tagScores.set(tag, Math.max(tagScores.get(tag) || 0, deficiency));
+      });
+    });
+  }
+  if (!tagScores.size) {
+    Object.keys(stats || {}).forEach((tag) => {
+      const deficiency = getTagDeficiency(stats, tag);
+      if (deficiency > 0.05) {
+        tagScores.set(tag, deficiency);
+      }
+    });
+  }
+  return [...tagScores.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag)
+    .slice(0, 3);
+}
+
+function getGlobalWeakTagSummary(limit = 3) {
+  let stored;
+  try {
+    stored = JSON.parse(localStorage.getItem(QUIZ_TAG_KEY) || '{}');
+  } catch (error) {
+    console.warn('Unable to parse quiz tag stats', error);
+    stored = {};
+  }
+  const entries = [];
+  Object.entries(stored).forEach(([track, stats]) => {
+    Object.entries(stats || {}).forEach(([tag, details]) => {
+      if (!details?.attempts) return;
+      const deficiency = Math.max(0, 1 - details.correct / details.attempts);
+      if (deficiency < 0.15) return;
+      entries.push({ tag, track, deficiency });
+    });
+  });
+  entries.sort((a, b) => b.deficiency - a.deficiency);
+  return entries.slice(0, limit);
+}
+
+function updateQuizFocusHint(tags = state.quiz.focusTags) {
+  const hint = document.getElementById('quizFocusHint');
+  if (!hint) return;
+  if (!state.quiz.track) {
+    hint.textContent = 'Adaptive focus: choose a track to begin.';
+    return;
+  }
+  if (!tags || !tags.length) {
+    hint.textContent = 'Adaptive focus: building a baseline for this track.';
+    return;
+  }
+  const formatted = tags.map((tag) => formatTagLabel(tag)).join(', ');
+  hint.innerHTML = `Adaptive focus: <strong>${formatted}</strong>`;
+}
+
+function formatTagLabel(tag) {
+  if (!tag) return '';
+  return tag
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function resetAdaptiveStats() {
+  const track = state.quiz.track;
+  const message = track
+    ? `Reset adaptive quiz history for ${TRACKS[track].title}?`
+    : 'Reset adaptive quiz history for all tracks?';
+  if (!window.confirm(message)) return;
+  if (track) {
+    clearQuizTagStats(track);
+  } else {
+    localStorage.removeItem(QUIZ_TAG_KEY);
+  }
+  state.quiz.focusTags = [];
+  updateQuizFocusHint([]);
 }
 
 function shuffle(list) {
@@ -876,13 +1341,48 @@ async function loadPbqData() {
     const response = await fetch(PBQ_FILE);
     if (!response.ok) throw new Error(`Failed to load ${PBQ_FILE}`);
     const data = await response.json();
-    state.pbq.questions = Array.isArray(data) ? data : [];
+    state.pbq.allQuestions = Array.isArray(data) ? data : [];
   } catch (error) {
     console.warn('Unable to load PBQs', error);
-    state.pbq.questions = [];
+    state.pbq.allQuestions = [];
   }
+  applyPbqAccessRules();
+  updateQuestionSummary();
   state.pbq.loaded = true;
   return state.pbq.questions;
+}
+
+function applyPbqAccessRules() {
+  const allQuestions = state.pbq.allQuestions || [];
+  const allowedCount = isProUser() ? allQuestions.length : Math.min(FREE_PBQ_LIMIT, allQuestions.length);
+  state.pbq.questions = allQuestions.slice(0, allowedCount);
+  if (!state.pbq.questions.length) {
+    state.pbq.currentIndex = 0;
+  } else if (state.pbq.currentIndex >= state.pbq.questions.length) {
+    state.pbq.currentIndex = state.pbq.questions.length - 1;
+  }
+  updatePbqLockNotice(allQuestions.length, allowedCount);
+}
+
+function updatePbqLockNotice(totalAvailable, allowedCount) {
+  const notice = document.getElementById('pbqLockNotice');
+  const limitSpan = document.getElementById('pbqLimitCount');
+  const lockedSpan = document.getElementById('pbqLockedCount');
+  const locked = Math.max(totalAvailable - allowedCount, 0);
+  if (limitSpan) {
+    const displayLimit = totalAvailable ? Math.min(FREE_PBQ_LIMIT, totalAvailable) : FREE_PBQ_LIMIT;
+    limitSpan.textContent = displayLimit.toString();
+  }
+  if (lockedSpan) {
+    lockedSpan.textContent = locked.toString();
+  }
+  if (!notice) return;
+  if (locked > 0 && !isProUser()) {
+    notice.hidden = false;
+  } else {
+    notice.hidden = true;
+    notice.classList.remove('pulse');
+  }
 }
 
 function populatePbqSelect() {
