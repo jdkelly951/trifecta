@@ -1311,9 +1311,18 @@ function buildAdaptiveQuizQuestions(trackKey, pool = []) {
     }
     return b.weight - a.weight;
   });
-  const selected = weighted.slice(0, limit).map((entry) => entry.question);
+  const selected = weighted.slice(0, limit).map((entry) => cloneQuizQuestion(entry.question));
   const focusTags = deriveFocusTags(stats, selected);
   return { questions: selected, focusTags };
+}
+
+function cloneQuizQuestion(question) {
+  if (!question) return question;
+  const baseChoices = Array.isArray(question.choices) ? question.choices : [];
+  return {
+    ...question,
+    choices: shuffle(baseChoices)
+  };
 }
 
 function getQuestionWeight(question, stats) {
