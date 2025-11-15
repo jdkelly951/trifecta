@@ -1,6 +1,6 @@
 {
-  "name": "Cert Study Suite",
-  "short_name": "Cert Suite",
+  "name": "Trifecta Study Suite",
+  "short_name": "Trifecta",
   "description": "Offline-ready CompTIA certification study companion for A+, Network+, and Security+ exams.",
   "start_url": "./index.html",
   "display": "standalone",

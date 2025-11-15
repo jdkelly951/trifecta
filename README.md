@@ -1,6 +1,6 @@
-# Trifecta
+# Trifecta Study Suite
 
-Static Cert Study Suite that lives in `docs/` so it can be hosted via GitHub Pages or any static host.
+Static Trifecta Study Suite lives in `docs/` so it can be hosted via GitHub Pages or any static host.
 
 ## Quick Start
 1. **Validate question banks** – `make check`
@@ -39,15 +39,15 @@ The dashboard now shows live question counts (including PBQs) and surfaces your 
 3. Create a Firestore collection named `entitlements` where each document ID is the user’s `uid` and includes at least `{ tier: 'pro' }`. Optional fields like `expiresAt` are preserved for future logic.
 4. Reload the site. The “Sign in” button in the header now authenticates with Google, syncs the entitlement, and updates the PBQ lock state automatically. Without the config file the button falls back to a “Setup sync” reminder so the static build still works.
 
-`docs/firebase-client.js` dynamically loads the Firebase SDK over HTTPS, so no bundler is required. Entitlements default to the local `cert-study-suite::entitlement` key when no remote doc exists, which keeps offline dev/testing simple.
+`docs/firebase-client.js` dynamically loads the Firebase SDK over HTTPS, so no bundler is required. Entitlements default to the local `trifecta-study-suite::entitlement` key when no remote doc exists, which keeps offline dev/testing simple.
 
 ## Adaptive quizzes
-- Every quiz question carries CompTIA domain tags. The SPA tracks per-tag accuracy in `localStorage` (`cert-study-suite::quiz-tags`) and surfaces weak areas in the Quizzes panel. Subsequent quizzes bias selection toward those tags until the learner’s accuracy improves.
-- The “Reset adaptive data” button in the Quizzes section clears the stored tag history for the active track (or every track if none is selected). You can also call `localStorage.removeItem('cert-study-suite::quiz-tags')` while debugging.
+- Every quiz question carries CompTIA domain tags. The SPA tracks per-tag accuracy in `localStorage` (`trifecta-study-suite::quiz-tags`) and surfaces weak areas in the Quizzes panel. Subsequent quizzes bias selection toward those tags until the learner’s accuracy improves.
+- The “Reset adaptive data” button in the Quizzes section clears the stored tag history for the active track (or every track if none is selected). You can also call `localStorage.removeItem('trifecta-study-suite::quiz-tags')` while debugging.
 
 ## Pro tier scaffolding
 - PBQs double as the first freemium boundary: the free tier only surfaces the first three scenarios and surfaces a CTA banner when more labs exist. Unlocking later simply means flipping the entitlement flag and re-rendering the select component—no extra UI wiring required.
-- Entitlements currently live in `localStorage` (`cert-study-suite::entitlement`). Call `window.certStudySuiteSetTier('pro')` in the browser console (or set the key manually) to simulate a subscriber; pass `'free'` to go back. When a real backend exists, update `initEntitlementStatus()`/`handleEntitlementUpdate()` in `docs/app.js` to read from your API instead.
+- Entitlements currently live in `localStorage` (`trifecta-study-suite::entitlement`). Call `window.trifectaSetTier('pro')` in the browser console (or set the key manually) to simulate a subscriber; pass `'free'` to go back. When a real backend exists, update `initEntitlementStatus()`/`handleEntitlementUpdate()` in `docs/app.js` to read from your API instead.
 - Upgrade buttons use the `data-upgrade` attribute so you can wire analytics or deep links later. Right now they just point learners to the PBQ banner and copy.
 
 ## One-time Pro unlock with Gumroad

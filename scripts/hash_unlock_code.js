@@ -8,7 +8,7 @@
 
 const { createHash } = require('crypto');
 
-const SALT = 'cert-study-suite::license-v1';
+const SALT = 'trifecta-study-suite::license-v1';
 const [, , rawInput] = process.argv;
 
 if (!rawInput) {

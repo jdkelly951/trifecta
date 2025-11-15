@@ -1,4 +1,4 @@
-# Cert Study Suite
+# Trifecta Study Suite
 
 A static, lightweight study app that helps learners prepare for CompTIA A+, Network+, and Security+ exams. The app runs entirely on GitHub Pages (or any static host) using client-side JSON question banks.
 
@@ -11,7 +11,7 @@ A static, lightweight study app that helps learners prepare for CompTIA A+, Netw
 
 ## Project Structure
 ```
-cert-study-suite/
+trifecta-study-suite/
 ├── index.html          # Single-page app shell
 ├── styles.css          # Tailored responsive styles
 ├── app.js              # UI + study logic (flashcards, quizzes, PBQs)
@@ -50,9 +50,9 @@ cert-study-suite/
   It lints every multiple-choice JSON file, enforces that answers match available choices, and sanity-checks PBQ definitions.
 
 ## Deploying to GitHub Pages
-1. Push the entire `cert-study-suite` folder to a GitHub repository (e.g., `username/cert-study-suite`).
+1. Push the entire `trifecta-study-suite` folder to a GitHub repository (e.g., `username/trifecta-study-suite`).
 2. In repository settings → Pages, select the `main` branch and `/ (root)` folder.
-3. Wait for the deployment to finish; your app will be live at `https://username.github.io/cert-study-suite/`.
+3. Wait for the deployment to finish; your app will be live at `https://username.github.io/trifecta-study-suite/`.
 4. The app behaves like a standard website; the latest assets are always fetched online.
 
 ## Browser Support

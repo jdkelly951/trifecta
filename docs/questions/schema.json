@@ -1,7 +1,7 @@
 {
-  "$id": "https://example.com/cert-study-suite-question.schema.json",
+  "$id": "https://example.com/trifecta-study-suite-question.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Cert Study Suite Question",
+  "title": "Trifecta Study Suite Question",
   "type": "object",
   "required": ["question", "choices", "answer", "explanation"],
   "properties": {

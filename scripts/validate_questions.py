@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Cert Study Suite question banks."""
+"""Validate Trifecta Study Suite question banks."""
 from __future__ import annotations
 
 import argparse

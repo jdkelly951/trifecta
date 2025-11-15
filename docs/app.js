@@ -31,19 +31,19 @@ const TRACKS = {
 
 const BUILD_VERSION = 'v2025-11-13h2';
 const PBQ_FILE = 'questions/aplus-pbq.json';
-const ENTITLEMENT_KEY = 'cert-study-suite::entitlement';
+const ENTITLEMENT_KEY = 'trifecta-study-suite::entitlement';
 const FREE_PBQ_LIMIT = 3;
 const UPGRADE_URL = 'https://gumroad.com/l/trifecta-pro-unlock';
-const LICENSE_STORAGE_KEY = 'cert-study-suite::license';
-const LICENSE_HASH_SALT = 'cert-study-suite::license-v1';
+const LICENSE_STORAGE_KEY = 'trifecta-study-suite::license';
+const LICENSE_HASH_SALT = 'trifecta-study-suite::license-v1';
 
 const STORAGE_KEYS = {
-  flashcards: 'cert-study-suite::flashcards',
-  quiz: 'cert-study-suite::quiz',
-  session: 'cert-study-suite::session'
+  flashcards: 'trifecta-study-suite::flashcards',
+  quiz: 'trifecta-study-suite::quiz',
+  session: 'trifecta-study-suite::session'
 };
-const ONBOARDING_KEY = 'cert-study-suite::onboarding-v1';
-const QUIZ_TAG_KEY = 'cert-study-suite::quiz-tags';
+const ONBOARDING_KEY = 'trifecta-study-suite::onboarding-v1';
+const QUIZ_TAG_KEY = 'trifecta-study-suite::quiz-tags';
 
 const state = {
   cache: {},
@@ -553,10 +553,12 @@ function registerServiceWorker() {
 }
 
 if (typeof window !== 'undefined') {
-  window.certStudySuiteSetTier = (tier = 'free') => {
+  const setTier = (tier = 'free') => {
     setLocalEntitlement(tier === 'pro');
     handleEntitlementUpdate();
   };
+  window.trifectaSetTier = setTier;
+  window.certStudySuiteSetTier = setTier;
 }
 
 function activateView(target) {
