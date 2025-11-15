@@ -33,7 +33,9 @@ const BUILD_VERSION = 'v2025-11-13h2';
 const PBQ_FILE = 'questions/aplus-pbq.json';
 const ENTITLEMENT_KEY = 'cert-study-suite::entitlement';
 const FREE_PBQ_LIMIT = 3;
-const UPGRADE_URL = 'https://trifecta.study/pro';
+const UPGRADE_URL = 'https://gumroad.com/l/trifecta-pro-unlock';
+const LICENSE_STORAGE_KEY = 'cert-study-suite::license';
+const LICENSE_HASH_SALT = 'cert-study-suite::license-v1';
 
 const STORAGE_KEYS = {
   flashcards: 'cert-study-suite::flashcards',
@@ -86,8 +88,12 @@ const pbqDragState = {
 
 let activeView = 'dashboard';
 let autoResumeHandled = false;
+let licenseHashes = [];
+let licenseReady = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await loadLicenseHashes();
+  await maybeHydrateLicense();
   initNavigation();
   populateTrackSelects();
   initEntitlementStatus();
@@ -106,9 +112,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   registerServiceWorker();
   registerUpgradeCtas();
   bindAuthControls();
+  bindRedeemForm();
+  await maybeRedeemFromQuery();
   maybeRunOnboarding();
   autoResumeSession();
 });
+
+async function loadLicenseHashes() {
+  try {
+    const module = await import('./license-keys.js');
+    const values = Array.isArray(module?.LICENSE_HASHES) ? module.LICENSE_HASHES : [];
+    licenseHashes = values
+      .map((value) => (typeof value === 'string' ? value.trim().toLowerCase() : ''))
+      .filter(Boolean);
+  } catch (error) {
+    licenseHashes = [];
+    if (error?.code && error.code !== 'ERR_MODULE_NOT_FOUND') {
+      console.warn('Unable to load license keys', error);
+    }
+  } finally {
+    licenseReady = true;
+    updateRedeemAvailability();
+  }
+}
+
+async function maybeHydrateLicense() {
+  const storedHash = localStorage.getItem(LICENSE_STORAGE_KEY);
+  if (!storedHash || !licenseHashes.length) {
+    return;
+  }
+  if (licenseHashes.includes(storedHash)) {
+    setLocalEntitlement(true);
+  } else {
+    localStorage.removeItem(LICENSE_STORAGE_KEY);
+    setLocalEntitlement(false);
+  }
+}
 
 function initVersionTag() {
   const tag = document.getElementById('versionTag');
@@ -216,6 +255,21 @@ function bindAuthControls() {
   document.getElementById('authButton')?.addEventListener('click', handleAuthButton);
 }
 
+function bindRedeemForm() {
+  const form = document.getElementById('redeemForm');
+  if (!form) return;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = document.getElementById('redeemCode');
+    if (!input) return;
+    const success = await redeemCodeWorkflow(input.value, { showFeedback: true });
+    if (success) {
+      input.value = '';
+    }
+  });
+  updateRedeemAvailability();
+}
+
 async function handleAuthButton() {
   if (!state.user.authSupported) {
     window.alert('Connect Firebase to enable sign in. See README.md → Adaptive quizzes.');
@@ -282,6 +336,7 @@ function handleEntitlementUpdate() {
   } else {
     updatePbqLockNotice(state.pbq.allQuestions.length, state.pbq.questions.length);
   }
+  updateRedeemAvailability();
 }
 
 function updateAccountBadge() {
@@ -312,6 +367,136 @@ function isProUser() {
     return Boolean(state.user.entitlements.remote);
   }
   return Boolean(state.user?.entitlements?.local);
+}
+
+async function hashUnlockCode(code) {
+  if (!code || !window.crypto?.subtle) return null;
+  const normalized = code.trim().toLowerCase();
+  if (!normalized) return null;
+  const salted = `${normalized}::${LICENSE_HASH_SALT}`;
+  const buffer = new TextEncoder().encode(salted);
+  const digest = await window.crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function setRedeemFeedback(message, status = 'info') {
+  const feedback = document.getElementById('redeemFeedback');
+  if (!feedback) return;
+  feedback.textContent = message || '';
+  feedback.classList.remove('success', 'error');
+  if (status === 'success') {
+    feedback.classList.add('success');
+  } else if (status === 'error') {
+    feedback.classList.add('error');
+  }
+}
+
+function updateRedeemAvailability() {
+  const input = document.getElementById('redeemCode');
+  const submitButton = document.querySelector('#redeemForm button[type="submit"]');
+  const hint = document.getElementById('redeemHint');
+  if (!input || !submitButton || !hint) return;
+
+  if (!licenseReady) {
+    input.disabled = true;
+    submitButton.disabled = true;
+    hint.textContent = 'Loading unlock settings…';
+    return;
+  }
+
+  if (!licenseHashes.length) {
+    input.disabled = true;
+    submitButton.disabled = true;
+    hint.textContent = 'Unlock codes are not configured yet.';
+    return;
+  }
+
+  if (!window.crypto?.subtle) {
+    input.disabled = true;
+    submitButton.disabled = true;
+    hint.textContent = 'This browser cannot redeem codes (Web Crypto unsupported).';
+    return;
+  }
+
+  if (isProUser()) {
+    input.value = '';
+    input.disabled = true;
+    submitButton.disabled = true;
+    hint.textContent = 'Pro is active on this device.';
+    return;
+  }
+
+  input.disabled = false;
+  submitButton.disabled = false;
+  hint.textContent = 'Enter the code from your receipt to activate Pro on this device.';
+}
+
+async function redeemCodeWorkflow(rawCode, { showFeedback = true } = {}) {
+  const report = (message, status) => {
+    if (showFeedback) {
+      setRedeemFeedback(message, status);
+    }
+  };
+  if (!licenseReady) {
+    report('Unlock settings are still loading. Try again in a moment.', 'error');
+    return false;
+  }
+  if (!licenseHashes.length) {
+    report('Unlock codes are not configured yet.', 'error');
+    return false;
+  }
+  if (!window.crypto?.subtle) {
+    report('This browser cannot redeem codes (Web Crypto unsupported).', 'error');
+    return false;
+  }
+  if (isProUser()) {
+    report('Pro is already active on this device.', 'success');
+    updateRedeemAvailability();
+    return true;
+  }
+  const code = rawCode?.trim();
+  if (!code) {
+    report('Enter the code from your receipt.', 'error');
+    return false;
+  }
+  report('Checking code…');
+  try {
+    const hashed = await hashUnlockCode(code);
+    if (hashed && licenseHashes.includes(hashed)) {
+      localStorage.setItem(LICENSE_STORAGE_KEY, hashed);
+      setLocalEntitlement(true);
+      handleEntitlementUpdate();
+      report('Pro unlocked! Enjoy the full experience.', 'success');
+      return true;
+    }
+    report('That code is not valid. Double-check your receipt and try again.', 'error');
+    return false;
+  } catch (error) {
+    console.warn('Redeem failed', error);
+    report('Something went wrong while validating the code.', 'error');
+    return false;
+  } finally {
+    updateRedeemAvailability();
+  }
+}
+
+async function maybeRedeemFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('redeem') || params.get('code');
+  if (!code) return;
+  const input = document.getElementById('redeemCode');
+  if (input) {
+    input.value = code;
+  }
+  await redeemCodeWorkflow(code, { showFeedback: true });
+  params.delete('redeem');
+  params.delete('code');
+  const query = params.toString();
+  const hash = window.location.hash || '';
+  const newUrl = query ? `${window.location.pathname}?${query}${hash}` : `${window.location.pathname}${hash}`;
+  window.history.replaceState({}, document.title, newUrl);
 }
 
 function registerUpgradeCtas() {

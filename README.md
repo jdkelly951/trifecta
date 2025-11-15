@@ -50,6 +50,18 @@ The dashboard now shows live question counts (including PBQs) and surfaces your 
 - Entitlements currently live in `localStorage` (`cert-study-suite::entitlement`). Call `window.certStudySuiteSetTier('pro')` in the browser console (or set the key manually) to simulate a subscriber; pass `'free'` to go back. When a real backend exists, update `initEntitlementStatus()`/`handleEntitlementUpdate()` in `docs/app.js` to read from your API instead.
 - Upgrade buttons use the `data-upgrade` attribute so you can wire analytics or deep links later. Right now they just point learners to the PBQ banner and copy.
 
+## One-time Pro unlock with Gumroad
+If subscriptions feel like overkill, you can sell a lifetime “Pro unlock” code and let learners redeem it inside the SPA:
+
+1. Create a Gumroad (or similar) product for the one-time unlock and set `UPGRADE_URL` in `docs/app.js` to the checkout URL.
+2. Generate salted SHA-256 hashes for each unlock code with `node scripts/hash_unlock_code.js "YOUR-CODE"` and copy them into `docs/license-keys.js` (use `docs/license-keys.sample.js` as a template). Keep the real file out of version control.
+3. Configure Gumroad to email the plain-text code to the buyer (include quick instructions like “Open the PBQ panel → Redeem code”).
+4. When the user redeems the code in-app, the entitlement flag is stored locally, PBQ limits disappear, and the “Redeem” form disables itself.
+
+This keeps monetization simple—no recurring billing or backend required—while still giving you the option to swap in a full API later.
+
+Tip: add a button to your Gumroad success page that links to `https://yourdomain/?redeem=CODE`. The app detects the `redeem` query string and auto-applies the code so learners don’t have to copy/paste manually.
+
 ## Stripe checkout sketch
 1. Create a Stripe Checkout session (recurring product called “Trifecta Pro”) and use the hosted Checkout link as the value of `UPGRADE_URL` in `docs/app.js`.
 2. In Stripe dashboard, add a webhook (e.g., handled by a Cloudflare Worker) that listens for `checkout.session.completed` and `customer.subscription.deleted`.

@@ -318,5 +318,181 @@
       "networking",
       "220-1202"
     ]
+  },
+  {
+    "question": "Which Windows deployment feature lets you upload a hardware hash and push an Intune profile so new laptops configure themselves during the first-run experience?",
+    "choices": [
+      "Windows Autopilot",
+      "Windows Deployment Services (WDS)",
+      "Windows To Go",
+      "System Center Configuration Manager task sequence"
+    ],
+    "answer": "Windows Autopilot",
+    "explanation": "Autopilot pairs a device hardware hash with a cloud profile so users unbox the PC, sign in, and automatically receive the corporate image, policies, and apps without IT touching the device.",
+    "tags": [
+      "windows",
+      "deployment",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "You need a disposable Windows environment to detonate suspicious attachments without risking the host. Which Windows 11 Pro feature provides an isolated desktop that resets every launch?",
+    "choices": [
+      "Windows Sandbox",
+      "Hyper-V Replica",
+      "Remote Desktop Connection",
+      "Microsoft Defender Application Control"
+    ],
+    "answer": "Windows Sandbox",
+    "explanation": "Windows Sandbox runs a lightweight virtualized desktop that is destroyed when closed, making it ideal for analyzing untrusted files without leaving remnants on the host OS.",
+    "tags": [
+      "windows",
+      "security",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "A Fedora-based workstation must install the latest Wireshark package from the default repositories. Which package manager command handles that task?",
+    "choices": [
+      "sudo dnf install wireshark",
+      "sudo apt install wireshark",
+      "sudo pacman -S wireshark",
+      "sudo emerge wireshark"
+    ],
+    "answer": "sudo dnf install wireshark",
+    "explanation": "Fedora, RHEL, and other RPM-based distributions use DNF as the default package manager, so installing software occurs through commands like `sudo dnf install`.",
+    "tags": [
+      "linux",
+      "operations",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "Where would you add a static hostname entry on a Linux desktop so it resolves before consulting DNS?",
+    "choices": [
+      "/etc/hosts",
+      "/etc/resolv.conf",
+      "/etc/fstab",
+      "/var/log/messages"
+    ],
+    "answer": "/etc/hosts",
+    "explanation": "Linux checks the /etc/hosts file for static mappings before querying DNS, making it the correct location for custom hostname-to-IP entries.",
+    "tags": [
+      "linux",
+      "operating-systems",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "During malware remediation, what step immediately follows quarantining the infected Windows Home PC according to best practices?",
+    "choices": [
+      "Disable System Restore",
+      "Schedule regular scans",
+      "Educate the end user",
+      "Update the anti-malware signatures"
+    ],
+    "answer": "Disable System Restore",
+    "explanation": "After isolating the device, you disable System Restore so malware cannot hide inside restore points; remediation and signature updates occur afterward.",
+    "tags": [
+      "security",
+      "operations",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "Which Windows security capability uses virtualization-based security to isolate LSASS secrets and resist pass-the-hash attacks?",
+    "choices": [
+      "Credential Guard",
+      "Device Guard",
+      "BitLocker To Go",
+      "UEFI Secure Boot"
+    ],
+    "answer": "Credential Guard",
+    "explanation": "Credential Guard leverages VBS to store NTLM hashes and Kerberos tickets in an isolated container, preventing attackers from dumping LSASS memory on the host OS.",
+    "tags": [
+      "security",
+      "windows",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "A MacBook needs full-disk encryption with a recovery key stored in iCloud for corporate compliance. Which built-in feature should you enable?",
+    "choices": [
+      "FileVault",
+      "Time Machine",
+      "Gatekeeper",
+      "Mission Control"
+    ],
+    "answer": "FileVault",
+    "explanation": "FileVault encrypts the entire macOS startup volume and can escrow the recovery key in iCloud or with an MDM, satisfying full-disk encryption requirements.",
+    "tags": [
+      "macOS",
+      "security",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "Which Windows feature enforces encryption on removable USB drives before users can copy corporate data to them?",
+    "choices": [
+      "BitLocker To Go",
+      "Storage Spaces",
+      "Storage Replica",
+      "BranchCache"
+    ],
+    "answer": "BitLocker To Go",
+    "explanation": "BitLocker To Go extends BitLocker protection to removable storage, forcing users to set a password or smart card before writing data to USB flash media.",
+    "tags": [
+      "security",
+      "windows",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "Which command displays the Resultant Set of Policy for the currently logged-on user so you can verify that a Group Policy took effect?",
+    "choices": [
+      "gpresult /r",
+      "gpupdate /force",
+      "net use",
+      "whoami /groups"
+    ],
+    "answer": "gpresult /r",
+    "explanation": "`gpresult /r` lists the effective computer and user policies along with the GPOs that applied, which is the quickest way to confirm Group Policy scope on a workstation.",
+    "tags": [
+      "windows",
+      "administration",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "A backup job copies only the files that changed since the last backup of any type and clears the archive bit. Which backup strategy is this?",
+    "choices": [
+      "Incremental backup",
+      "Differential backup",
+      "Synthetic full backup",
+      "Snapshot copy"
+    ],
+    "answer": "Incremental backup",
+    "explanation": "Incremental backups capture changes since the last full or incremental job and reset the archive bit, resulting in small daily backups but requiring every incremental to restore.",
+    "tags": [
+      "operations",
+      "backup",
+      "220-1202"
+    ]
+  },
+  {
+    "question": "A support engineer needs secure command-line access to a Linux server across the internet without exposing a GUI. Which remote access method should they use?",
+    "choices": [
+      "SSH",
+      "RDP",
+      "VNC",
+      "SMB"
+    ],
+    "answer": "SSH",
+    "explanation": "Secure Shell (SSH) provides encrypted terminal access over TCP 22 and is the de facto method for administering Linux systems remotely without a graphical interface.",
+    "tags": [
+      "remote-access",
+      "security",
+      "220-1202"
+    ]
   }
 ]

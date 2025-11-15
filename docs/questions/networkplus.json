@@ -223,5 +223,165 @@
       "fiber",
       "N10-009"
     ]
+  },
+  {
+    "question": "Which IPv6 method lets hosts configure their own addresses and default gateway using router advertisements without needing a DHCP server?",
+    "choices": [
+      "Stateless Address Autoconfiguration (SLAAC)",
+      "DHCPv6 stateful mode",
+      "IPv4 APIPA",
+      "ISATAP"
+    ],
+    "answer": "Stateless Address Autoconfiguration (SLAAC)",
+    "explanation": "With SLAAC, routers advertise the network prefix and default gateway, and each host builds its own EUI-64 or privacy address, eliminating the need for a dedicated DHCPv6 server.",
+    "tags": [
+      "ipv6",
+      "configuration",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Branch routers must dynamically steer traffic over broadband, LTE, or MPLS based on controller policies rather than static routing. Which architecture delivers this behavior?",
+    "choices": [
+      "Software-defined WAN",
+      "Policy-based routing",
+      "Traditional DMVPN",
+      "PPP multilink"
+    ],
+    "answer": "Software-defined WAN",
+    "explanation": "SD-WAN uses centralized controllers and secure overlays so edge devices can evaluate multiple underlay circuits and follow application-aware policies without manual per-site configuration.",
+    "tags": [
+      "wan",
+      "design",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Security leadership wants to combine CASB, Secure Web Gateway, firewall-as-a-service, and zero trust access into a single cloud-delivered edge. Which approach aligns with that goal?",
+    "choices": [
+      "Secure Access Service Edge (SASE)",
+      "Full-mesh IPsec VPN",
+      "On-prem NGFW cluster",
+      "PaaS peering"
+    ],
+    "answer": "Secure Access Service Edge (SASE)",
+    "explanation": "SASE delivers networking and security controls from the cloud, converging SWG, CASB, FWaaS, and ZTNA so users receive consistent policy enforcement regardless of location.",
+    "tags": [
+      "security",
+      "architecture",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which network management protocol relies on YANG data models and sends structured configuration data over SSH, making it ideal for intent-based automation?",
+    "choices": [
+      "NETCONF",
+      "TFTP",
+      "RADIUS",
+      "LLDP"
+    ],
+    "answer": "NETCONF",
+    "explanation": "NETCONF uses Extensible Markup Language encoded per YANG models to push or retrieve configuration/state data securely over SSH, enabling programmatic control of modern devices.",
+    "tags": [
+      "automation",
+      "management",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Engineers maintain human-readable YAML playbooks that connect over SSH to push switch configurations without installing agents. Which automation framework are they most likely using?",
+    "choices": [
+      "Ansible",
+      "Chef",
+      "Puppet",
+      "Salt Minion"
+    ],
+    "answer": "Ansible",
+    "explanation": "Ansible executes YAML playbooks through an agentless SSH connection, making it a popular choice for network teams that want to automate configuration changes without installing software on each device.",
+    "tags": [
+      "automation",
+      "operations",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "An organization runs IPv6-only clients but must access legacy IPv4 services on the internet. Which technology translates their traffic so they can reach those destinations?",
+    "choices": [
+      "NAT64",
+      "Dual stack",
+      "Teredo tunneling",
+      "VRRP"
+    ],
+    "answer": "NAT64",
+    "explanation": "NAT64 converts IPv6 packets into IPv4 (and vice versa) using stateful translation, allowing IPv6-only hosts to reach IPv4-only resources without adding an IPv4 stack to every endpoint.",
+    "tags": [
+      "ipv6",
+      "integration",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Which DNS record type maps a hostname to a 128-bit IPv6 address?",
+    "choices": [
+      "AAAA",
+      "PTR",
+      "SRV",
+      "CNAME"
+    ],
+    "answer": "AAAA",
+    "explanation": "AAAA (quad-A) records contain IPv6 addresses, while A records carry IPv4 addresses; PTR handles reverse lookups and CNAME creates aliases.",
+    "tags": [
+      "dns",
+      "services",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "Instead of polling SNMP counters, a monitoring platform subscribes to routers that push key metrics over gRPC in near real time. What is this monitoring technique called?",
+    "choices": [
+      "Streaming telemetry",
+      "RMON collection",
+      "Port mirroring",
+      "NetFlow sampling"
+    ],
+    "answer": "Streaming telemetry",
+    "explanation": "Streaming telemetry lets devices push time-series data continuously (often using gRPC and model-driven encoding), reducing the overhead and delay associated with periodic SNMP polling.",
+    "tags": [
+      "monitoring",
+      "performance",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "A vendor ships new access switches that should automatically download their intended configuration as soon as they power up and reach the network. Which process enables this?",
+    "choices": [
+      "Zero-touch provisioning",
+      "Manual console configuration",
+      "Port aggregation",
+      "Port security"
+    ],
+    "answer": "Zero-touch provisioning",
+    "explanation": "Zero-touch provisioning (ZTP) leverages DHCP options or cloud onboarding so a new device discovers its management server, downloads a configuration, and registers itself with minimal human effort.",
+    "tags": [
+      "operations",
+      "deployment",
+      "N10-009"
+    ]
+  },
+  {
+    "question": "To operate in the 6 GHz band, Wi-Fi 6E clients must negotiate which security protocol?",
+    "choices": [
+      "WPA3",
+      "WPA2",
+      "WEP",
+      "Open authentication"
+    ],
+    "answer": "WPA3",
+    "explanation": "Regulatory rules for Wi-Fi 6E require WPA3 security in the 6 GHz spectrum, so devices cannot connect using legacy WPA2 or open authentication methods.",
+    "tags": [
+      "wireless",
+      "security",
+      "N10-009"
+    ]
   }
 ]

@@ -196,6 +196,22 @@
         </div>
       </div>
 
+      <div class="redeem-card" id="redeemCard">
+        <div>
+          <p class="eyebrow">Already upgraded?</p>
+          <h3>Redeem your unlock code</h3>
+          <p id="redeemHint">Enter the code from your receipt to activate Pro on this device.</p>
+        </div>
+        <form id="redeemForm" class="redeem-form" autocomplete="off">
+          <label for="redeemCode">Unlock code</label>
+          <div class="redeem-form-row">
+            <input type="text" id="redeemCode" name="redeemCode" placeholder="Enter code" inputmode="text" aria-describedby="redeemFeedback" />
+            <button type="submit" class="primary">Redeem</button>
+          </div>
+          <p class="redeem-feedback" id="redeemFeedback" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
       <div class="pbq-area" aria-live="polite">
         <article class="pbq-card" id="pbqCard">
           <p class="eyebrow" id="pbqSource"></p>

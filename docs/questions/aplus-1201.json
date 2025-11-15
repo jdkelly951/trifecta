@@ -315,5 +315,181 @@
       "cabling",
       "220-1201"
     ]
+  },
+  {
+    "question": "A field technician must provision cellular data on a tablet that ships without a SIM tray by scanning a carrier QR code. Which technology enables that workflow?",
+    "choices": [
+      "Embedded SIM (eSIM)",
+      "Dual-SIM dual-standby (DSDS)",
+      "Micro-SIM card",
+      "SIM toolkit applet"
+    ],
+    "answer": "Embedded SIM (eSIM)",
+    "explanation": "An eSIM stores subscriber information in soldered silicon and can download a carrier profile through a QR code or activation code, eliminating the need for a removable card.",
+    "tags": [
+      "mobile",
+      "cellular",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A graphics team wants to drive two 4K monitors, Ethernet, and power delivery over a single cable connected to a slim laptop. Which interface meets those requirements?",
+    "choices": [
+      "Thunderbolt 4",
+      "USB 2.0 Type-A",
+      "Mini DisplayPort to HDMI adapter",
+      "Bluetooth 5.3"
+    ],
+    "answer": "Thunderbolt 4",
+    "explanation": "Thunderbolt 4 over USB-C supports 40 Gbps data, dual 4K displays, PCIe tunneling, and up to 100W USB Power Delivery through one cable, which fits high-end dock requirements.",
+    "tags": [
+      "hardware",
+      "peripherals",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A laptop routinely throttles because its cooling fins are clogged with lint. Which maintenance step should you perform first to restore airflow without disassembling the system?",
+    "choices": [
+      "Blow short bursts of compressed air through the exhaust vents",
+      "Raise the CPU multiplier in firmware",
+      "Switch Windows to the Balanced power plan",
+      "Calibrate the lithium-ion battery"
+    ],
+    "answer": "Blow short bursts of compressed air through the exhaust vents",
+    "explanation": "Using canned air in small bursts dislodges dust from the heat sink and fans while the system is powered off, often restoring cooling performance without full teardown.",
+    "tags": [
+      "maintenance",
+      "troubleshooting",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "Which specification guarantees an SSD uses PCIe 4.0 x4 lanes directly over the M.2 bus to deliver the highest throughput in a small form factor?",
+    "choices": [
+      "M.2 2280 NVMe PCIe 4.0 x4",
+      "mSATA mini card",
+      "U.2 SAS interface",
+      "USB 3.2 Gen 1 Type-C enclosure"
+    ],
+    "answer": "M.2 2280 NVMe PCIe 4.0 x4",
+    "explanation": "An M.2 2280 device keyed for NVMe over PCIe 4.0 x4 communicates directly with the CPU/chipset lanes, providing multi-gigabyte-per-second transfers unattainable with SATA or USB adapters.",
+    "tags": [
+      "storage",
+      "hardware",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "Battery-powered smart sensors must maximize sleep time while using Wi-Fi 6. Which 802.11ax feature lets the access point schedule exact wake intervals for those clients?",
+    "choices": [
+      "Target Wake Time",
+      "Beamforming",
+      "20 MHz-only operation",
+      "BSS coloring"
+    ],
+    "answer": "Target Wake Time",
+    "explanation": "Target Wake Time (TWT) coordinates when IoT clients wake to transmit, greatly reducing contention and extending battery life compared to constantly listening for beacons.",
+    "tags": [
+      "wireless",
+      "networking",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A home office wants symmetrical gigabit Internet that does not degrade over long copper runs. Which access technology best fits the requirement?",
+    "choices": [
+      "Fiber-to-the-premises using GPON",
+      "DOCSIS 3.1 cable",
+      "ADSL2+ over twisted pair",
+      "Fixed LTE wireless"
+    ],
+    "answer": "Fiber-to-the-premises using GPON",
+    "explanation": "GPON/FTTP terminates fiber directly at the premise, delivering symmetrical gigabit service and superior distance characteristics compared to copper-based DSL or best-effort wireless.",
+    "tags": [
+      "networking",
+      "infrastructure",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "Before removing an adhesive-backed smartphone battery, which safety step reduces the risk of thermal runaway if the pack is accidentally flexed?",
+    "choices": [
+      "Discharge the battery below 25% charge",
+      "Store the phone in a freezer overnight",
+      "Short the terminals together briefly",
+      "Pierce the pouch to vent it first"
+    ],
+    "answer": "Discharge the battery below 25% charge",
+    "explanation": "Lowering the charge level before prying on a lithium battery minimizes the energy available if the cell is punctured, reducing the chance of severe venting or fire.",
+    "tags": [
+      "mobile",
+      "repair",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "Which cable do you need to connect a USB-C ultrabook to a portable monitor that relies on DisplayPort Alternate Mode and also draws power from the host?",
+    "choices": [
+      "USB-C to USB-C cable rated for DisplayPort Alt Mode and USB PD",
+      "USB-A to HDMI passive cable",
+      "Mini DisplayPort to VGA adapter",
+      "RJ45 to USB-C console cable"
+    ],
+    "answer": "USB-C to USB-C cable rated for DisplayPort Alt Mode and USB PD",
+    "explanation": "Portable monitors that use USB-C expect a cable that carries DisplayPort Alt Mode video lanes plus USB Power Delivery; a passive HDMI or legacy adapter will not negotiate those modes.",
+    "tags": [
+      "peripherals",
+      "display",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "An installer must power a Wi-Fi 6 access point mounted far from the telecom rack, but the existing switch has no PoE ports. What component solves this without rewiring the run?",
+    "choices": [
+      "Inline PoE injector",
+      "Ethernet coupler",
+      "Passive loopback plug",
+      "Transceiver media converter"
+    ],
+    "answer": "Inline PoE injector",
+    "explanation": "A midspan PoE injector sits between the switch and the AP, adding 802.3at/af power onto the existing Ethernet cable so you can energize the device without replacing hardware.",
+    "tags": [
+      "networking",
+      "installation",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "Before applying a large Windows feature update to a production virtual machine, which hypervisor feature lets you revert instantly if the upgrade fails?",
+    "choices": [
+      "Snapshot of the VM",
+      "Live migration",
+      "Dynamic memory ballooning",
+      "NUMA spanning"
+    ],
+    "answer": "Snapshot of the VM",
+    "explanation": "Creating a snapshot captures the VM's disk and memory state so you can roll back to the pre-upgrade image if the feature update causes instability.",
+    "tags": [
+      "virtualization",
+      "maintenance",
+      "220-1201"
+    ]
+  },
+  {
+    "question": "A storage server has two onboard 2.5 GbE ports and needs more aggregate throughput to the core switch without upgrading hardware. Which configuration best meets the requirement?",
+    "choices": [
+      "Enable LACP link aggregation between the ports",
+      "Configure NIC teaming for failover only",
+      "Assign each port a different VLAN and IP",
+      "Force both ports to half-duplex mode"
+    ],
+    "answer": "Enable LACP link aggregation between the ports",
+    "explanation": "Link Aggregation Control Protocol combines multiple physical interfaces into one logical bundle, providing increased bandwidth and redundancy using the existing ports.",
+    "tags": [
+      "networking",
+      "performance",
+      "220-1201"
+    ]
   }
 ]

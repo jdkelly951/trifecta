@@ -160,6 +160,66 @@ main {
   justify-content: flex-end;
 }
 
+.redeem-card {
+  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.redeem-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.redeem-form-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.redeem-form input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  font-family: inherit;
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.redeem-form input:disabled {
+  background: rgba(148, 163, 184, 0.2);
+  cursor: not-allowed;
+}
+
+.redeem-form button {
+  min-width: 140px;
+}
+
+.redeem-feedback {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.redeem-feedback.success {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.redeem-feedback.error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
 .hero-actions {
   display: flex;
   flex-direction: column;

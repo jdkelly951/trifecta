@@ -211,5 +211,160 @@
       "data-protection",
       "SY0-701"
     ]
+  },
+  {
+    "question": "Which technology enforces zero trust by verifying user identity, device posture, and policy compliance before brokering a per-session connection to an internal application?",
+    "choices": [
+      "Zero Trust Network Access (ZTNA) service",
+      "Traditional site-to-site VPN",
+      "Port address translation on the firewall",
+      "Generic NAC switch port control"
+    ],
+    "answer": "Zero Trust Network Access (ZTNA) service",
+    "explanation": "ZTNA platforms create outbound microtunnels to specific applications only after validating the user and device continuously, aligning with zero-trust principles better than legacy network-level VPNs.",
+    "tags": [
+      "identity",
+      "architecture",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "If the single loss expectancy (SLE) for a system is $75,000 and the annualized rate of occurrence (ARO) is 0.4, what is the annualized loss expectancy (ALE)?",
+    "choices": [
+      "$30,000",
+      "$18,750",
+      "$75,400",
+      "$300,000"
+    ],
+    "answer": "$30,000",
+    "explanation": "ALE = SLE × ARO, so $75,000 multiplied by 0.4 equals a $30,000 projected annual loss if the threat materializes at that rate.",
+    "tags": [
+      "risk",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which artifact catalogs every library, dependency, and version inside an application or container image so you can assess software supply-chain risk?",
+    "choices": [
+      "Software bill of materials (SBOM)",
+      "Master service agreement",
+      "Certificate signing request",
+      "Interconnection security agreement"
+    ],
+    "answer": "Software bill of materials (SBOM)",
+    "explanation": "An SBOM lists all components that make up the software, enabling vulnerability management teams to quickly identify exposure when upstream libraries disclose flaws.",
+    "tags": [
+      "supply-chain",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which federation protocol exchanges XML assertions between an identity provider and service provider to enable web-based SSO?",
+    "choices": [
+      "SAML",
+      "RADIUS",
+      "OAuth 2.0",
+      "Kerberos"
+    ],
+    "answer": "SAML",
+    "explanation": "Security Assertion Markup Language (SAML) shares authentication statements via browser POSTs or redirects, enabling cross-domain SSO between SaaS apps and enterprise identity providers.",
+    "tags": [
+      "identity",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Security operations wants to detect insider threats by spotting deviations from normal travel patterns, data access, and login times. Which tool focuses on this behavioral analysis?",
+    "choices": [
+      "User and Entity Behavior Analytics (UEBA)",
+      "Web application firewall",
+      "Content delivery network",
+      "DNS sinkhole"
+    ],
+    "answer": "User and Entity Behavior Analytics (UEBA)",
+    "explanation": "UEBA platforms baseline normal behavior and use analytics to flag anomalous user or device actions, helping detect insider threats and account compromise beyond rule-based alerts.",
+    "tags": [
+      "monitoring",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "To protect an industrial control network from ransomware originating on the corporate LAN, which control is most effective?",
+    "choices": [
+      "Segment the OT network with firewalls and a one-way DMZ",
+      "Enable UPnP between the subnets",
+      "Place ICS controllers on the guest Wi-Fi",
+      "Rely solely on endpoint antivirus signatures"
+    ],
+    "answer": "Segment the OT network with firewalls and a one-way DMZ",
+    "explanation": "Creating an OT DMZ or unidirectional gateway enforces strong segmentation, limiting lateral movement from IT to OT environments and providing monitored choke points for data exchange.",
+    "tags": [
+      "ics",
+      "network-security",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "A research firm wants to store regulated data in a public cloud object bucket but ensure the provider cannot read the contents. Which approach satisfies that requirement?",
+    "choices": [
+      "Client-side encryption with customer-managed keys",
+      "Server-side encryption with provider-managed keys",
+      "Transporting data over HTTPS only",
+      "Replicating the bucket across regions"
+    ],
+    "answer": "Client-side encryption with customer-managed keys",
+    "explanation": "Encrypting data before upload and retaining sole control of the keys prevents the cloud provider from decrypting the objects, meeting strict confidentiality requirements.",
+    "tags": [
+      "cloud",
+      "cryptography",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "During incident response you need to follow the order of volatility. Which data source should be captured first?",
+    "choices": [
+      "CPU registers and system memory",
+      "Full disk image",
+      "Archived syslog files",
+      "Offsite backups"
+    ],
+    "answer": "CPU registers and system memory",
+    "explanation": "Volatile data such as CPU cache, registers, and RAM disappears quickly, so responders capture memory first before collecting longer-lived evidence like disks or logs.",
+    "tags": [
+      "forensics",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which authentication method provides phishing-resistant, passwordless access by using hardware security keys that speak WebAuthn/FIDO2?",
+    "choices": [
+      "Passkeys based on FIDO2/WebAuthn",
+      "SMS one-time passcodes",
+      "TOTP authenticator apps",
+      "Knowledge-based questions"
+    ],
+    "answer": "Passkeys based on FIDO2/WebAuthn",
+    "explanation": "WebAuthn/FIDO2 stores private keys on hardware authenticators (or secure enclaves) and performs cryptographic challenges per site, preventing credential reuse and phishing.",
+    "tags": [
+      "identity",
+      "authentication",
+      "SY0-701"
+    ]
+  },
+  {
+    "question": "Which regulation governs how organizations process personal data of EU residents and grants rights such as data portability and erasure?",
+    "choices": [
+      "General Data Protection Regulation (GDPR)",
+      "HIPAA",
+      "PCI DSS",
+      "Sarbanes-Oxley"
+    ],
+    "answer": "General Data Protection Regulation (GDPR)",
+    "explanation": "GDPR establishes strict privacy requirements for EU personal data, including lawful processing, breach notification, and data-subject rights like access, portability, and the right to be forgotten.",
+    "tags": [
+      "compliance",
+      "privacy",
+      "SY0-701"
+    ]
   }
 ]
