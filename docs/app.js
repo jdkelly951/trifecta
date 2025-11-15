@@ -70,7 +70,8 @@ const state = {
     currentIndex: 0,
     score: 0,
     answered: false,
-    focusTags: []
+    focusTags: [],
+    totalAvailable: 0
   },
   pbq: {
     loaded: false,
@@ -1173,7 +1174,8 @@ async function startQuiz(trackKey) {
     currentIndex: 0,
     score: 0,
     answered: false,
-    focusTags
+    focusTags,
+    totalAvailable: questions.length
   };
 
   recordSession('quizzes', trackKey);
@@ -1201,7 +1203,10 @@ function renderQuizQuestion() {
   }
 
   questionEl.textContent = question.question;
-  meta.textContent = `${TRACKS[state.quiz.track].title} • Question ${state.quiz.currentIndex + 1} of ${state.quiz.questions.length}`;
+  const totalAvailable = state.quiz.totalAvailable || state.quiz.questions.length;
+  const sessionCount = state.quiz.questions.length;
+  const extraCopy = totalAvailable > sessionCount ? ` • ${totalAvailable} in bank` : '';
+  meta.textContent = `${TRACKS[state.quiz.track].title} • Question ${state.quiz.currentIndex + 1} of ${sessionCount}${extraCopy}`;
   choicesContainer.innerHTML = '';
   feedback.hidden = true;
   nextButton.disabled = true;
@@ -1276,8 +1281,11 @@ function updateQuizStats() {
   const total = state.quiz.questions.length;
   const answered = Math.min(state.quiz.currentIndex + (state.quiz.answered ? 1 : 0), total);
   const accuracy = answered ? Math.round((state.quiz.score / answered) * 100) : 0;
-  element.textContent = `${TRACKS[state.quiz.track].title}: ${state.quiz.score}/${answered} correct • ${accuracy}% accuracy`;
-  setTrackChip('quiz', state.quiz.track, `${state.quiz.score}/${answered} correct • ${accuracy}% accuracy`);
+  const totalAvailable = state.quiz.totalAvailable || state.quiz.questions.length;
+  const detail = `${state.quiz.score}/${answered} correct • ${accuracy}% accuracy`;
+  const bankCopy = totalAvailable ? `${detail} • ${totalAvailable} in bank` : detail;
+  element.textContent = `${TRACKS[state.quiz.track].title}: ${bankCopy}`;
+  setTrackChip('quiz', state.quiz.track, bankCopy);
 }
 
 async function loadQuestionSet(trackKey) {
