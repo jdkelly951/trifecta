@@ -1,6 +1,6 @@
 # Trifecta Study Suite
 
-Static Trifecta Study Suite lives in `docs/` so it can be hosted via GitHub Pages or any static host.
+Offline-first CompTIA prep app that lives entirely in `docs/`, making it perfect for GitHub Pages or any static host. Install it like a PWA and it behaves like a native study tool on your phone.
 
 ## Quick Start
 1. **Validate question banks** – `make check`
@@ -12,6 +12,7 @@ Both commands rely on Python 3 (already available on most systems). Use `PYTHON=
 `make check` (or `python3 scripts/validate_questions.py`) performs:
 - schema-style checks for every multiple-choice JSON file in `docs/questions/`
 - structural checks for the PBQ definitions (`aplus-pbq.json`)
+- generates/updates `docs/questions/manifest.json` with per-track counts + tags for the dashboard
 - failure output per file if anything is malformed, with a non-zero exit code for CI hooks.
 
 Run `python3 scripts/validate_questions.py --quiet` to get a terse success log or pass file paths to lint a single bank.
@@ -22,6 +23,7 @@ Run `python3 scripts/validate_questions.py --quiet` to get a terse success log o
 - `scripts/validate_questions.py` – helper used by `make check`
 - `scripts/create_question_pack.py` – scaffolds a new question pack template (`make new-pack`)
 - `Makefile` – convenience targets for validation and local serving
+- `package.json` – JS tooling for schedulers + Playwright smoke tests
 
 ## Offline support
 The app registers the service worker in `docs/sw.js`, which precaches all core assets and question banks the first time the site loads. Once cached, learners can reopen the page without an internet connection—helpful prep for wrapping the web app into native store builds later. During local development keep using `make serve` (which runs a local HTTP server); otherwise the browser blocks the service worker.
@@ -71,3 +73,18 @@ Tip: add a button to your Gumroad success page that links to `https://yourdomain
 Until Stripe is wired, the upgrade buttons simply highlight the PBQ paywall banner. Once you have a live Checkout URL, drop it into `UPGRADE_URL` and the buttons will open it in a new tab.
 
 See `docs/README.md` for the in-depth description of how the study app works.
+
+## Testing & QA
+- `npm test` runs the Vitest unit suite for the flashcard scheduler helpers.
+- `npm run test:e2e` launches Playwright against a temporary `python -m http.server` instance (see `playwright.config.ts`).
+- `make test` / `make test-e2e` proxy the same commands.
+
+## Optional sync
+- Copy `docs/config.example.json` to `docs/config.json`, then edit `endpoint`, `learnerId`, and `apiKey` (if needed). You can also set `window.TRIFECTA_SYNC_CONFIG = { endpoint, learnerId, apiKey }` before loading `app.js`.
+- Run `python3 scripts/dev_sync_server.py` for a zero-dependency local API that stores study data in `sync_store.json`, or point the config at any HTTPS endpoint that understands the JSON payload.
+- Flashcard card states/stats, tag metrics, PBQ answers/history, and timed-exam results now debounce into that endpoint and automatically pull down on load when `autoPull` is true.
+
+## Phone setup (GitHub Pages → Home Screen)
+1. Push `main` with the `docs/` folder intact, then enable GitHub Pages (Settings → Pages → `main` / `/root`). Within ~2 minutes you’ll have `https://USERNAME.github.io/REPO/`.
+2. Open that URL on your phone. When the install prompt surfaces (or via browser menu → *Add to Home Screen* / *Install app*), confirm it. iOS caches via Safari; Android via Chrome/Edge.
+3. Launch it from the new home-screen icon. The service worker precaches everything so you can study offline in bed; syncing (if configured) resumes as soon as you’re back on Wi‑Fi.

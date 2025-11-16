@@ -1,7 +1,11 @@
 {
   "name": "Trifecta Study Suite",
   "short_name": "Trifecta",
+<<<<<<< HEAD
   "description": "Offline-ready CompTIA certification study companion for A+, Network+, and Security+ exams.",
+=======
+  "description": "Offline-ready Trifecta Study Suite for CompTIA A+, Network+, and Security+ prep on your phone.",
+>>>>>>> cd42845 (Rename Cert Study Suite to Trifecta)
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8fafc",

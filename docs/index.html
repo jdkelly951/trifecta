@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f172a" />
-  <meta name="description" content="Trifecta Study Suite - CompTIA prep PWA for A+, Network+, and Security+" />
+<<<<<<< HEAD
+  <meta name="description" content="Trifecta Study Suite - offline CompTIA prep PWA for A+, Network+, and Security+" />
+=======
+  <meta name="description" content="Trifecta Study Suite - offline CompTIA prep PWA for A+, Network+, and Security+" />
+>>>>>>> cd42845 (Rename Cert Study Suite to Trifecta)
   <title>Trifecta Study Suite</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
@@ -107,6 +111,10 @@
             Track
             <select id="flashcardTrack"></select>
           </label>
+          <label>
+            Tag focus
+            <select id="flashcardTagFilter" aria-label="Filter flashcards by CompTIA domain"></select>
+          </label>
           <button id="loadFlashcards" class="primary">Shuffle Deck</button>
           <p class="track-chip" id="flashcardTrackChip" role="status" aria-live="polite">No track selected</p>
         </div>
@@ -139,6 +147,10 @@
             Track
             <select id="quizTrack"></select>
           </label>
+          <label>
+            Tag focus
+            <select id="quizTagFilter" aria-label="Filter quiz questions by CompTIA domain"></select>
+          </label>
           <button id="startQuiz" class="primary">New Quiz</button>
           <p class="track-chip" id="quizTrackChip" role="status" aria-live="polite">No track selected</p>
         </div>
@@ -158,6 +170,53 @@
           <button class="ghost subtle-button" type="button" id="resetAdaptiveButton">Reset adaptive data</button>
         </div>
       </div>
+
+      <article class="exam-card" id="examCard" aria-live="polite">
+        <header class="section-header">
+          <div>
+            <h3>Timed Exam Mode</h3>
+            <p>Simulate a full CompTIA exam with a countdown clock and running pace stats.</p>
+          </div>
+          <div class="controls-row">
+            <label>
+              Track
+              <select id="examTrack"></select>
+            </label>
+            <label>
+              Question cap
+              <input id="examQuestionCap" type="number" min="20" max="90" step="5" value="90" />
+            </label>
+            <label>
+              Duration (minutes)
+              <input id="examDuration" type="number" min="30" max="120" step="5" value="90" />
+            </label>
+            <button id="startExam" class="primary">Start timed exam</button>
+            <button id="finishExam" class="ghost" disabled>Finish exam</button>
+            <p class="track-chip" id="examTrackChip" role="status" aria-live="polite">Exam not started</p>
+          </div>
+        </header>
+        <div class="exam-status">
+          <p id="examTimer" class="eyebrow">Timer: —</p>
+          <p id="examProgress">Progress: —</p>
+          <p id="examPace">Average pace: —</p>
+        </div>
+        <div class="exam-question" id="examQuestionArea">
+          <p class="eyebrow" id="examMeta">Choose a track to begin.</p>
+          <h3 id="examQuestion">No exam in progress</h3>
+          <div id="examChoices" class="choices"></div>
+          <div class="exam-nav">
+            <button id="prevExamQuestion" class="ghost" disabled>Previous</button>
+            <button id="nextExamQuestion" class="ghost" disabled>Next</button>
+          </div>
+        </div>
+        <div class="stats" id="examStats">Exam summary will appear here.</div>
+        <div class="exam-history">
+          <h4>Recent exam attempts</h4>
+          <ul id="examHistoryList">
+            <li>No timed exams yet. Start one to see stats.</li>
+          </ul>
+        </div>
+      </article>
     </section>
 
     <section id="pbqs" class="view" aria-labelledby="pbqs-heading">
@@ -167,6 +226,10 @@
           <p>Simulate CompTIA-style PBQs: arrange steps, match tools, or enter the exact command.</p>
         </div>
         <div class="controls-column">
+          <label>
+            Track
+            <select id="pbqTrack"></select>
+          </label>
           <label>
             Scenario
             <select id="pbqSelect"></select>
@@ -226,7 +289,10 @@
 
   <footer class="app-footer">
     <small>Science-backed CompTIA drills by Trifecta. Add custom packs by dropping JSON files into <code>docs/questions</code>.</small>
-    <span id="versionTag" class="version-tag" aria-live="polite"></span>
+    <div class="footer-meta">
+      <span id="versionTag" class="version-tag" aria-live="polite"></span>
+      <span id="syncStatus" class="version-tag" aria-live="polite">Sync: Local only</span>
+    </div>
   </footer>
 
   <script src="firebase-config.js" defer></script>

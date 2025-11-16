@@ -3,15 +3,32 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Sequence
+from typing import Dict, List, Sequence, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-QUESTION_DIR = ROOT / "docs" / "questions"
+DOCS_DIR = ROOT / "docs"
+QUESTION_DIR = DOCS_DIR / "questions"
 MC_ALLOWED_KEYS = {"question", "choices", "answer", "explanation", "tags"}
 PBQ_TYPES = {"ordering", "matching", "command"}
+PBQ_TRACK_META = {
+    "aplus": {
+        "title": "CompTIA A+ PBQs",
+        "tracks": ["aplus-1201", "aplus-1202"],
+    },
+    "networkplus": {
+        "title": "CompTIA Network+ PBQs",
+        "tracks": ["networkplus"],
+    },
+    "securityplus": {
+        "title": "CompTIA Security+ PBQs",
+        "tracks": ["securityplus"],
+    },
+}
 
 
 def load_json(path: Path):
@@ -180,10 +197,76 @@ def discover_files(selected: Sequence[str] | None) -> List[Path]:
             paths.append(path)
         return paths
     for path in sorted(QUESTION_DIR.glob('*.json')):
-        if path.name == 'schema.json':
+        if path.name in {'schema.json', 'manifest.json'}:
             continue
         paths.append(path)
     return paths
+
+
+def compute_file_hash(path: Path) -> str:
+    hasher = hashlib.sha256()
+    hasher.update(path.read_bytes())
+    return hasher.hexdigest()
+
+
+def collect_tags(entries: List[Dict[str, object]]) -> Dict[str, int]:
+    tags: Dict[str, int] = {}
+    for item in entries:
+        raw_tags = item.get("tags") if isinstance(item, dict) else None
+        if not isinstance(raw_tags, list):
+            continue
+        for tag in raw_tags:
+            if isinstance(tag, str) and tag.strip():
+                tags[tag] = tags.get(tag, 0) + 1
+    return tags
+
+
+def build_manifest_payload(
+    meta: Dict[str, Dict[str, Dict[str, object]]]
+) -> Dict[str, object]:
+    tracks_payload: Dict[str, object] = {}
+    pbq_payload: Dict[str, object] = {}
+
+    for key, info in sorted(meta.get("tracks", {}).items()):
+        file_path = Path(info["path"])
+        rel_path = file_path.relative_to(DOCS_DIR).as_posix()
+        tracks_payload[key] = {
+            "file": rel_path,
+            "count": info["count"],
+            "tags": info.get("tags", {}),
+            "hash": info["hash"],
+        }
+
+    for slug, info in sorted(meta.get("pbqs", {}).items()):
+        file_path = Path(info["path"])
+        rel_path = file_path.relative_to(DOCS_DIR).as_posix()
+        entry: Dict[str, object] = {
+            "file": rel_path,
+            "count": info["count"],
+            "hash": info["hash"],
+        }
+        if info.get("titles"):
+            entry["titles"] = [title for title in info["titles"] if isinstance(title, str)]
+        track_meta = PBQ_TRACK_META.get(slug)
+        if track_meta:
+            entry.update(track_meta)
+        pbq_payload[slug] = entry
+
+    payload: Dict[str, object] = {
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "tracks": tracks_payload,
+    }
+    if pbq_payload:
+        payload["pbqs"] = pbq_payload
+    return payload
+
+
+def write_manifest(path: Path, payload: Dict[str, object]) -> None:
+    text = json.dumps(payload, indent=2) + "\n"
+    if path.exists() and path.read_text(encoding="utf-8") == text:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
 
 
 def main() -> int:
@@ -199,10 +282,15 @@ def main() -> int:
         action="store_true",
         help="Only print failures.",
     )
+    parser.add_argument(
+        "--manifest",
+        help="Write a manifest JSON file with track metadata (counts, tags, hashes).",
+    )
     args = parser.parse_args()
 
     files = discover_files(args.paths)
     had_error = False
+    manifest_meta: Dict[str, Dict[str, Dict[str, object]]] = {"tracks": {}, "pbqs": {}}
     for path in files:
         rel = path.relative_to(ROOT)
         try:
@@ -222,8 +310,38 @@ def main() -> int:
                 print(f"  - {err}")
         elif not args.quiet:
             print(f"[ OK ] {rel} ({count} entries)")
+
+        if errors:
+            continue
+
+        file_hash = compute_file_hash(path)
+        if path.name.endswith('pbq.json'):
+            slug = path.stem.replace('-pbq', '')
+            manifest_meta["pbqs"][slug] = {
+                "path": str(path),
+                "count": count,
+                "hash": file_hash,
+                "kind": "pbq",
+                "titles": [item.get("title") for item in data if isinstance(item, dict)],
+            }
+        else:
+            key = path.stem
+            tags = collect_tags(data if isinstance(data, list) else [])
+            manifest_meta["tracks"][key] = {
+                "path": str(path),
+                "count": count,
+                "hash": file_hash,
+                "kind": "track",
+                "tags": tags,
+            }
+
     if had_error:
         return 1
+    if args.manifest:
+        manifest_payload = build_manifest_payload(manifest_meta)
+        write_manifest(Path(args.manifest), manifest_payload)
+        if not args.quiet:
+            print(f"Manifest updated at {args.manifest}")
     if not args.quiet:
         print("All question banks look good! ✨")
     return 0
